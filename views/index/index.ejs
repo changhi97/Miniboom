@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="kr">
+
+<head>
+  <!-- 외부 라이브러리 -->
+  <script src="/javascripts/redirect.js"></script>
+  <script src="/jquery/jquery.js"></script>
+  <script src="../../public/javascripts/jquery-3.5.1.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+
+  <!-- 내부 라이브러리 -->
+  <link rel="stylesheet" href="/index/chat.css">
+  <script src="/index/index_local.js"></script>
+  <script src="/index/index_chat_local.js"></script>
+
+  <!-- ejs 모듈 -->
+  <%- include ('../../public/ejs-module/head.ejs') %>
+</head>
+
+<body>
+  <!-- 상단 네비게이션 바 -->
+  <header>
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+      <div class="container-fluid">
+
+        <!-- 타이틀 -->
+        <a class="navbar-brand" href="/">미니붐</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- 네비게이션바 -->
+        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+          <!-- 왼족 네이게이션 바 -->
+          <ul class="navbar-nav me-auto mb-2 mb-md-0">
+            <li class="nav-item">
+              <a class="nav-link" href="#">사이트 안내</a>
+            </li>
+            <% if(state == "Member") {%> // 로그인 시 푸시알림출력
+            <script src="/index/index_push_local.js"></script>
+            <li class="nav-item" id="pB">
+              <button class="btn btn-primary btn-l" id="subscribe"></button>
+            </li>
+            <% } %>
+          </ul>
+          <!-- 오른쪽 네비게이션 바 -->
+          <div class="nav-item">
+            <ul class="navbar-nav me-auto mb-2 mb-md-0">
+              <li class="nav-item">
+                <% if(state == "nonMember") {%> // 로그아웃 상태
+                <a class="btn btn-primary btn-l" href="/login">로그인</a>
+                <% }else { %>
+                <!-- user dropdown-->
+              <li class="nav-item dropdown">
+                <a class="btn btn-primary btn-l" href="#" id="dropdown01" data-bs-toggle="dropdown" aria-expanded="false"><%=nickname%></a>
+                <ul class="dropdown-menu" aria-labelledby="dropdown01">
+                  <li><a class="dropdown-item" href="/notice">알람 관리</a></li>
+                  <li><a class="dropdown-item" onclick="logout()" href="/logout">Logout</a></li>
+                </ul>
+              </li>
+              <!-- user dropdown-->
+              <% }%>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </nav>
+  </header>
+
+  <!-- 컨테이너 -->
+  <main>
+    <!-- 메뉴 -->
+    <section class="container">
+      <div class="starter-template text-center py-5 px-3">
+        <h1>미니붐</h1>
+        <p class="lead">비회원도 참여 가능한 프로그래밍 커뮤니티 웹 사이트</p>
+        <div class="row">
+          <div class="col-lg-4">
+            <img class="rounded-circle" src="images/undraw_profile_1.svg" alt="Generic placeholder image" width="140" height="140">
+            <h2>질문</h2>
+            <p>어떤 질문이라도 쓸모없는 질문은 없습니다.</p>
+            <p>Ask freely. There is no useless question. </p>
+            <p><a class="btn btn-secondary" href="/questionboard" role="button">질문 게시판 이동 »</a></p>
+          </div>
+          <div class="col-lg-4">
+            <img class="rounded-circle" src="images/undraw_profile_3.svg" alt="Generic placeholder image" width="140" height="140">
+            <h2>그룹</h2>
+            <p>실시간 의사소통이 필요할때도 있는법이지요.</p>
+            <p>Chill and Chat</p>
+            <p><a class="btn btn-secondary" href="/chat" role="button">채팅 하기 »</a></p>
+          </div>
+          <div class="col-lg-4">
+            <img class="rounded-circle" src="images/undraw_profile_2.svg" alt="Generic placeholder image" width="140" height="140">
+            <h2>개발 중</h2>
+            <p>자유롭지만 방종은 안된답니다.</p>
+            <p>Freedom! But don't bother others </p>
+            <p><a class="btn btn-secondary" href="freeboard" role="button">개발 중 »</a></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 채팅 세션 -->
+    <section class="container">
+      <div class="container-box">
+        <div class="top"> <span class="name"></span></div>
+        <div id="chat">
+          <!-- 채팅 메시지 영역 -->
+        </div>
+        <div class="write">
+          <a href="javascript:;" class="write-link attach" id="upload_btn"></a>
+          <input type="text" type="text" id="test" value="" />
+          <a href="javascript:;" onclick="send()" class="write-link send"></a>
+        </div>
+      </div>
+
+      <div class="memo-box">
+        <div id="memo">
+          <!-- 쪽지 메시지 영역 -->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- messageModal-->
+  <div class="modal" id="messageModal" data-backdrop="false" style="display: none;">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header"><span class="modal-title" id="message-target"></span></div>
+      <div class="modal-body"><textarea id="poster-content" name="poster-content" rows="10" cols="40"></textarea></div>
+      <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal();" >Cancel</button><a class="btn btn-primary" id="sendMessage" onclick="sendMemo(this)">SEND</a></div>
+      <input type="hidden" id="socketId" value="">
+    </div>
+  </div>
+</div>
+  <!-- footer start-->
+  <!-- <%# include('../ejs/footer.ejs'); %> -->
+  <!-- footer end -->
+
+</body>
+
+<!-- 히든값 -->
+<input type="hidden" id="state" value="<%=state%>">
+<input type="hidden" id="nickname" value="<%=nickname%>">
+
+<!-- 외부 자바스크립트 -->
+<script src="/vendor/bootstrap/js/bootstrap.bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+
+<!-- 내부 자바스크립트 -->
+<script type="text/javascript">
+  main();
+</script>
+
+
+</html>
