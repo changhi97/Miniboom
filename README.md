@@ -60,7 +60,7 @@
  $ git clone https://github.com/NonStopLife/ProjectMiniboom.git
 </pre>
 ## 4.2 Node 모듈 다운로드
-아래 명령어를 통해 node의 외부 모듈 다운로드
+아래 명령어를 통해 node_modules 다운로드
 <pre>
 npm install
 </pre>
