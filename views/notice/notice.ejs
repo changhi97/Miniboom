@@ -11,9 +11,9 @@
 </head>
 
 <body>
-  <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-    <%- include ('../../public/ejs-module/header.ejs') %>
-  </nav>
+
+  <%- include ('../../public/ejs-module/header.ejs') %>
+
 
   <!-- Main Content -->
   <div id="content">
@@ -31,18 +31,17 @@
                 <thead>
                   <tr>
                     <th>SENDER</th>
-                    <th>TITLE</th>
                     <th>CONTENT</th>
                     <th>TIME</th>
                   </tr>
                 </thead>
                 <tbody>
                   <% for (var i=0; i<data.length; i++){ %>
-                  <tr id="<%= i%>" onclick="openModal(this);">
-                    <td class = "sender"> <%=  data[i].sender %> </td>
-                    <td class = "title"> <%=  data[i].title %> </td>
-                    <td class = "content"> <%=  data[i].content %> </td>
-                    <td> <%=  data[i].push_time %> </td>
+                  <tr id="<%=i%>" onclick="openModal(this);">
+                    <td class="sender"> <%=data[i].sender%> </td>
+                    <td class="content"> <%=data[i].content%> </td>
+                    <td> <%=data[i].push_time%> </td>
+                    <input type="hidden" class="sender_state" value="<%=data[i].sender_state%>">
                   </tr>
                   <% } %>
                 </tbody>
@@ -58,21 +57,25 @@
   </div>
   <!-- End of Main Content -->
 
-  <!-- Logout Modal-->
-  <div class="modal" id="logoutModal">
-      <div class="modal-dialog">
-          <div class="modal-content">
-              <div class="modal-header">
-                  <h5 class="modal-title"></h5>
-                  <button class="btn btn-secondary" onclick="closeModal()">x</button>
-              </div>
-              <div class="modal-body"></div>
-              <div class="modal-footer"></div>
-          </div>
+  <!-- Writer messageModal-->
+  <div class="modal" id="messageModal" data-backdrop="false" style="display: none;">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header"><span class="modal-title" id="message-target"></span></div>
+      <div class="modal-body"><textarea id="poster-content" name="poster-content" rows="10" cols="40"></textarea></div>
+      <div class="modal-footer">
+        <a class="btn btn-primary" id="sendMessage" onclick="sendMemo()">SEND</a>
+        <a class="btn btn-primary" id="replyMessage">reply</a>
+        <button class="btn btn-secondary" onclick="closeModal();" >Cancel</button>
       </div>
+    </div>
   </div>
+</div>
+
+<input type="hidden" id="nickname" value="<%=info.nickname%>">
 </body>
 
 <script src="/vendor/bootstrap/js/bootstrap.bundle.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+
 </html>

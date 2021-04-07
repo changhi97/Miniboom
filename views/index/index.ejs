@@ -2,16 +2,17 @@
 <html lang="kr">
 
 <head>
-  <!-- 외부 라이브러리 -->
+  <!-- 외부 라이브러리 /public에 위치 -->
   <script src="/javascripts/redirect.js"></script>
   <script src="/jquery/jquery.js"></script>
-  <script src="../../public/javascripts/jquery-3.5.1.min.js"></script>
+  <script src="/javascripts/jquery-3.5.1.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
 
   <!-- 내부 라이브러리 -->
   <link rel="stylesheet" href="/index/chat.css">
   <script src="/index/index_local.js"></script>
   <script src="/index/index_chat_local.js"></script>
+  <script src="/index/index_push_local.js"></script>
 
   <!-- ejs 모듈 -->
   <%- include ('../../public/ejs-module/head.ejs') %>
@@ -19,55 +20,8 @@
 
 <body>
   <!-- 상단 네비게이션 바 -->
-  <header>
-    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-      <div class="container-fluid">
+  <%- include ('../../public/ejs-module/header.ejs') %>
 
-        <!-- 타이틀 -->
-        <a class="navbar-brand" href="/">미니붐</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <!-- 네비게이션바 -->
-        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-          <!-- 왼족 네이게이션 바 -->
-          <ul class="navbar-nav me-auto mb-2 mb-md-0">
-            <li class="nav-item">
-              <a class="nav-link" href="#">사이트 안내</a>
-            </li>
-            <% if(state == "Member") {%> // 로그인 시 푸시알림출력
-            <script src="/index/index_push_local.js"></script>
-            <li class="nav-item" id="pB">
-              <button class="btn btn-primary btn-l" id="subscribe"></button>
-            </li>
-            <% } %>
-          </ul>
-          <!-- 오른쪽 네비게이션 바 -->
-          <div class="nav-item">
-            <ul class="navbar-nav me-auto mb-2 mb-md-0">
-              <li class="nav-item">
-                <% if(state == "nonMember") {%> // 로그아웃 상태
-                <a class="btn btn-primary btn-l" href="/login">로그인</a>
-                <% }else { %>
-                <!-- user dropdown-->
-              <li class="nav-item dropdown">
-                <a class="btn btn-primary btn-l" href="#" id="dropdown01" data-bs-toggle="dropdown" aria-expanded="false"><%=nickname%></a>
-                <ul class="dropdown-menu" aria-labelledby="dropdown01">
-                  <li><a class="dropdown-item" href="/notice">알람 관리</a></li>
-                  <li><a class="dropdown-item" onclick="logout()" href="/logout">Logout</a></li>
-                </ul>
-              </li>
-              <!-- user dropdown-->
-              <% }%>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-      </div>
-    </nav>
-  </header>
 
   <!-- 컨테이너 -->
   <main>
@@ -124,17 +78,21 @@
     </section>
   </main>
 
-  <!-- messageModal-->
+  <!-- Writer messageModal-->
   <div class="modal" id="messageModal" data-backdrop="false" style="display: none;">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header"><span class="modal-title" id="message-target"></span></div>
       <div class="modal-body"><textarea id="poster-content" name="poster-content" rows="10" cols="40"></textarea></div>
-      <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal();" >Cancel</button><a class="btn btn-primary" id="sendMessage" onclick="sendMemo(this)">SEND</a></div>
-      <input type="hidden" id="socketId" value="">
+      <div class="modal-footer">
+        <a class="btn btn-primary" id="sendMessage" onclick="sendMemo()">SEND</a>
+        <a class="btn btn-primary" id="replyMessage" onclick="replyMemo()">reply</a>
+        <button class="btn btn-secondary" onclick="closeModal();" >Cancel</button>
+      </div>
     </div>
   </div>
 </div>
+
   <!-- footer start-->
   <!-- <%# include('../ejs/footer.ejs'); %> -->
   <!-- footer end -->
@@ -142,8 +100,8 @@
 </body>
 
 <!-- 히든값 -->
-<input type="hidden" id="state" value="<%=state%>">
-<input type="hidden" id="nickname" value="<%=nickname%>">
+<input type="hidden" id="state" value="<%=info.state%>">
+<input type="hidden" id="nickname" value="<%=info.nickname%>">
 
 <!-- 외부 자바스크립트 -->
 <script src="/vendor/bootstrap/js/bootstrap.bundle.js"></script>

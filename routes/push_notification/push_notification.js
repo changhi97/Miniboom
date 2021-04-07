@@ -59,6 +59,7 @@ router.post('/', (req, res) => {
     var reciver = info.reciver;
     var title = '-';
     var content = info.content;
+    var sender_state = auth.statusUI(req, res).state;
     get_pushinfo(reciver, function(result) {
       if (result === undefined) {
         console.log("undefined이라는건 뭐다? 비회원이다~");
@@ -77,7 +78,7 @@ router.post('/', (req, res) => {
           webPush.sendNotification(subscription, payload).catch(error => console.error(error));
         }
         //푸시허용 비허용에 상관없이 쪽지의 내용은 저장한다.(sender, reciver, title, content)
-        savePushContent(sender, reciver, title, content);
+        savePushContent(sender, reciver, title, content, sender_state);
         res.json(true);
       }
     })
@@ -107,10 +108,10 @@ function get_pushinfo(nickname, callback) {
   });
 }
 
-function savePushContent(sender, reciver, title, content) {
+function savePushContent(sender, reciver, title, content, sender_state) {
   //var sql = `SELECT sender, reciver, title, content FROM PUSH_NOTICE`
-  var sql = `INSERT INTO PUSH_NOTICE(sender, reciver, title, content)
-              VALUES ('${sender}', '${reciver}', '${title}', '${content}');`;
+  var sql = `INSERT INTO PUSH_NOTICE(sender, reciver, title, content, sender_state)
+  VALUES ('${sender}', '${reciver}', '${title}', '${content}', '${sender_state}');`;
   conn.query(sql, function(err, result2) {
     if (err) throw err;
     console.log(`${sender} => ${reciver} : <${title} ${content}>`);

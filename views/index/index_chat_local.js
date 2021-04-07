@@ -25,6 +25,8 @@ function connect() {
 
 function newUser_response() {
   socket.on('newUser_response', function(info) {
+    console.log('newUser_response: ',info );
+
     socket.emit('newUser_notice', info);
   })
 }
@@ -84,7 +86,6 @@ function update() {
       var minutes = today.getMinutes(); // 분
       var localtime = `${hours} : ${minutes}`;
       var nickname = $("#nickname").val();
-      console.log(nickname);
 
       var chat = document.getElementById('chat');
       var message = document.createElement('div');
@@ -99,9 +100,12 @@ function update() {
       var content_Node = document.createTextNode(`${data.message}`);
       var time_Node = document.createTextNode(`-${localtime}-`);
 
-      var className = 'you';
-      if (nickname === data.name) {
-        className = 'me';
+      var className = 'me';
+      if (nickname !== data.name) {
+        className = 'you';
+        name.addEventListener('click', function() {
+          openModal(data.name);
+        });
       }
 
       message.classList.add(className);
@@ -112,9 +116,7 @@ function update() {
       message.appendChild(content);
       message.appendChild(time);
       chat.appendChild(message);
-      name.addEventListener('click', function() {
-        openModal(data.name, data.socketId);
-      });
+
 
       // 스크롤바 맨 아래로
       $("#chat").scrollTop($("#chat")[0].scrollHeight);
@@ -187,21 +189,36 @@ function messageModal(className, message, name, nickname) {
   //}
 }
 
-function sendMemo(memo) {
+function onlyYou() {
+  socket.on('only', function(data) {
+      console.log("only local");
+      console.log(data);
+      var memo = document.getElementById('memo');
+      var memo_content = document.createElement('div');
+      memo_content.setAttribute("class", "memo_content");
+      memo_content.innerHTML = data.sender+"</br>"+data.content;
+      memo.appendChild(memo_content);
+      memo_content.addEventListener('click', function() {
+        openReadModal(data);
+      });
+  });
+}
+
+function sendMemo() {
   var reciver = $("#message-target").val();
   var sender = $('#nickname').val();
   var content = $("#poster-content").val();
   $("#poster-content").val('');
 
-  if (target == undefined || content.trim().length === 0) return;
+  if (reciver == undefined || content.trim().length === 0) return;
 
   var msg = {
     flag: "memo",
+    reciver: reciver,
     sender: sender,
-    reciver: target,
     content: content
   }
-  console.log(msg);
+  console.log("sendMemo: ",msg);
   $.ajax({
     type: "POST",
     url: "/push_Notification",
@@ -209,27 +226,39 @@ function sendMemo(memo) {
     contentType: 'application/json',
     data: JSON.stringify(msg),
     success: function(result) {
-      console.log("result");
-      console.log(result);
+      console.log("result",result);
       closeModal();
     }
   });
   socket.emit('only', msg);
 }
 
-function onlyYou() {
-  socket.on('only', function(data) {
-    console.log(data);
-  });
-}
 
-function openModal(name, socketId) {
+function openModal(name) {
   $("#messageModal").css("display", "block");
+  $("#sendMessage").css("display", "block");
+  $("#replyMessage").css("display", "none");
   $("#message-target").text(name);
   $("#message-target").val(name);
-  $("#socketId").val(socketId);
+  $("#poster-content").val('');
+  $("#poster-content").attr("readonly", false);
 }
 
+function openReadModal(data) {
+  console.log("openReadModal",data);
+  $("#messageModal").css("display", "block");
+  $("#sendMessage").css("display", "none");
+  $("#replyMessage").css("display", "block");
+  $("#message-target").text(data.sender);
+  $("#message-target").val(data.sender);
+  $("#poster-content").val(data.content);
+  $("#poster-content").attr("readonly", true);
+}
+
+function replyMemo(){
+  var name = $("#message-target").val();
+  openModal(name);
+}
 function closeModal() {
   $("#messageModal").css("display", "none");
 }

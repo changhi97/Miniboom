@@ -1,7 +1,7 @@
-function main(){
-  setUser();
-  startSocket();
-  enterkey();
+async function main(){
+  await setUser();
+  await startSocket();
+  await enterkey();
 }
 
 function setUser(){

@@ -6,10 +6,10 @@
   --dark: #1a1a1a;
   --light: #e6e6e6;
   --blue: #00b0ff;
-  --pink: Pink;
+  --pink : Pink;
 }
 
-body {
+body{
   overflow-y: hidden;
 }
 
@@ -36,9 +36,10 @@ body {
 .container-box {
   margin-top: 135px;
   position: relative;
+  float: left;
   top: 50%;
-  left: 50%;
-  width: 50%;
+  left: 35%;
+  width: 70%;
   height: 100%;
   background-color: white;
   transform: translate(-50%, -50%);
@@ -46,10 +47,12 @@ body {
 
 .memo-box {
   margin-top: 135px;
+  margin-left: 1%;
   position: relative;
+  float: left;
   top: 50%;
-  left: 50%;
-  width: 50%;
+  left: 15%;
+  width: 20%;
   height: 100%;
   background-color: white;
   transform: translate(-50%, -50%);
@@ -68,10 +71,10 @@ body {
   font-weight: 600;
 }
 
-#memo{
+#chat {
   position: relative;
   overflow-y: scroll;
-  border-width: 1px 1px 1px 0;
+  border-width: 3px 3px 3px 3px;
   border-style: solid;
   border-color: var(--light);
   height: 275px;
@@ -79,13 +82,13 @@ body {
   flex-direction: column;
 }
 
-#chat {
+#memo {
   position: relative;
   overflow-y: scroll;
-  border-width: 1px 1px 1px 0;
+  border-width: 3px 3px 3px 3px;
   border-style: solid;
   border-color: var(--light);
-  height: 275px;
+  height: 320px;
   justify-content: flex-end;
   flex-direction: column;
 }
@@ -102,23 +105,20 @@ body {
   float: left;
   vertical-align: top;
   align-self: flex-start;
-  margin: 3px;
+  margin:3px;
 }
-
-.you .chat_name {
+.you .chat_name{
   font-size: 14px;
   font-weight: bold;
   text-decoration: none;
-  color: black;
+  color :black;
   margin: 3px;
 }
-
-.you .chat_name:hover {
+.you .chat_name:hover{
   background-color: var(--pink);
   border-radius: 5px;
 }
-
-.you .chat_content {
+.you .chat_content{
   font-size: 15px;
   margin: 3px;
   padding: 13px 14px;
@@ -126,12 +126,11 @@ body {
   color: var(--white);
   background-color: var(--blue);
 }
-
-.you .chat_content:hover {
+.you .chat_content:hover{
   background-color: DodgerBlue;
 }
 
-.you .chat_content a {
+.you .chat_content a{
   font-size: 14px;
   margin: 3px;
   padding: 13px 14px;
@@ -141,13 +140,13 @@ body {
   width: 100%;
   height: 100%;
   font-weight: bold;
-  text-decoration: none;
+  text-decoration:none;
 }
-
-.you .chat_time {
+.you .chat_time{
   font-size: 13px;
   float: right;
 }
+
 
 .me {
   position: relative;
@@ -156,23 +155,20 @@ body {
   vertical-align: top;
   float: right;
   align-self: flex-end;
-  margin: 3px;
+  margin:3px;
 }
-
-.me .chat_name {
+.me .chat_name{
   font-size: 14px;
   font-weight: bold;
   text-decoration: none;
-  color: black;
+  color :black;
   margin: 3px;
 }
-
-.me .chat_name:hover {
+.me .chat_name:hover{
   background-color: var(--pink);
   border-radius: 5px;
 }
-
-.me .chat_content {
+.me .chat_content{
   font-size: 15px;
   margin: 3px;
   padding: 13px 14px;
@@ -180,12 +176,10 @@ body {
   color: var(--dark);
   background-color: #eceff1;
 }
-
-.me .chat_content:hover {
+.me .chat_content:hover{
   background-color: LightGrey;
 }
-
-.me .chat_content a {
+.me .chat_content a{
   font-size: 14px;
   margin: 3px;
   padding: 13px 14px;
@@ -195,10 +189,9 @@ body {
   width: 100%;
   height: 100%;
   font-weight: bold;
-  text-decoration: none;
+  text-decoration:none;
 }
-
-.me .chat_time {
+.me .chat_time{
   font-size: 13px;
   float: left;
 }
@@ -263,5 +256,33 @@ body {
   height: 100%;
   border: 1px solid black;
   border-radius: 3px;
-  padding: 5px;
+  padding:5px;
+}
+
+
+.memo_content{
+  overflow:hidden;
+  width: 90%;
+  height: 15%;
+  font-size: 10px;
+  margin: 5px;
+  padding: 10px;
+  border-radius: 5px;
+  color: var(--dark);
+  background-color: #eceff1;
+}
+.memo_content:hover{
+  background-color: LightGrey;
+}
+.memo a{
+  font-size: 14px;
+  margin: 3px;
+  padding: 13px 14px;
+  border-radius: 5px;
+  color: var(--dark);
+  background-color: #eceff1;
+  width: 100%;
+  height: 100%;
+  font-weight: bold;
+  text-decoration:none;
 }

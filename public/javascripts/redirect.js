@@ -1,4 +1,3 @@
-
 function connectHTTPS(){
   var protocol = window.location.protocol;
   var hostname = window.location.hostname;

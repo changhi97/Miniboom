@@ -13,7 +13,10 @@ router.get('/', function(req, res) {
   if (info.nickname !== undefined) { //info.state === Member
     nickname = info.nickname;
     getPushContent(nickname, function(result) {
-      res.render("notice/notice", {data : result});
+      res.render("notice/notice", {
+        data: result,
+        info: info
+      });
     })
   } else { //info.state === nonMember
     res.redirect('/')
@@ -23,7 +26,7 @@ router.get('/', function(req, res) {
 module.exports = router; //su_server를 다른 파일에서도 사용할수있기 하기위해?
 
 function getPushContent(nickname, callback) {
-  var sql = `SELECT sender, reciver, title, content, DATE_FORMAT(push_time, '%Y-%m-%d    %h:%i %p') AS push_time FROM PUSH_NOTICE WHERE reciver = "${nickname}";`
+  var sql = `SELECT sender, reciver, title, content, sender_state, DATE_FORMAT(push_time, '%Y-%m-%d    %h:%i %p') AS push_time FROM PUSH_NOTICE WHERE reciver = "${nickname}";`
   conn.query(sql, function(err, result) {
     if (err) throw err;
     console.log("===notice page result===");

@@ -4,7 +4,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var session = require('express-session');
 var app_s = express();
-var app = express(); // 푸시 알림이 80번 포트로 진행되기에 삭제하지 말것
+var app = express();
 
 var debug = require('debug')('helloexpress:server');
 var http = require('http'); // before it was http
@@ -44,15 +44,24 @@ app_s.use(session({
   //store: new FileStore() //파일생성
 }));
 
-
+//view engine setup
+//app_s.set('public', path.join(__dirname, 'public')); // ejs 경로 설정이 문제인가?
+app.set('view engine', 'ejs');
 app_s.set('view engine', 'ejs');
+
+app.use(express.static(path.join(__dirname, '/')));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'views')));
 
 app_s.use(express.static(path.join(__dirname, '/')));
 app_s.use(express.static(path.join(__dirname, 'public')));
 app_s.use(express.static(path.join(__dirname, 'views')));
 
 // 리다이렉트 코드 from http to https
-// 이 코드 덕분에 다른 http로 라우팅 되는 코드를 다 지워도 됨있음
+// 이 코드 덕분에 다른 http로 라우팅 되는 코드를 다 지워도 될 수 있음
+// -----------------------------------------------------------------------------
+// 일단은 _s가 없는 코드는 놔둘것
+// 주말이나 시간 넉넉할때 날 잡아서 코드 정리
 app.all('*', (req, res, next) => //
 {
   // x-forwarded-proto: 프로토콜(http | https) 확인하는 사실상의 표준 헤더
@@ -91,10 +100,30 @@ var push_notificationRouter = require('./routes/push_notification/push_notificat
 //0322 추가 쪽지, 푸시알람 페이지
 var noticeRouter = require('./routes/notice/notice');
 
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+
 app_s.use(logger('dev'));
 app_s.use(express.json());
 app_s.use(express.urlencoded({ extended: false }));
 app_s.use(cookieParser());
+
+app.use('/', indexRouter);
+app.use('/freeboard', freeboardRouter);
+app.use('/login', loginRouter);
+app.use('/questionboard', questionboardRouter);
+//app.use('/chat', chatRouter);
+app.use('/signup', signupRouter);
+app.use('/logout', logoutRouter);
+
+//0305 추가 push_test, push_notification
+app.use('/push_test', push_testRouter);
+app.use('/push_notification', push_notificationRouter);
+
+//0322
+app.use('/notice', noticeRouter);
 
 app_s.use('/', indexRouter);
 app_s.use('/freeboard', freeboardRouter);
@@ -181,6 +210,6 @@ function onListening() {
   debug('Listening on ' + bind);
 }
 
-//module.export = app;
+module.export = app;
 
 module.export = app_s;
