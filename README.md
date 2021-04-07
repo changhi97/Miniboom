@@ -60,12 +60,14 @@
  $ git clone https://github.com/NonStopLife/ProjectMiniboom.git
 </pre>
 ## 4.2 Node 모듈 다운로드
-'''
+아래 명령어를 통해 node의 외부 모듈 다운로드
+<pre>
 npm install
-'''
+</pre>
 ## 4.3 .key라는 이름의 디렉토리 생성
 해당 디렉토리에 필요한 파일 목록:
 
 * SSL 인증서
-* MySQL 비밀번호 설정
-* 환경 변수 파일(variables.env)
+* MySQL 비밀번호를 담고 있는 json파일
+* 환경 변수 파일
+* SMTP 전송을 위한 Javascript 파일
