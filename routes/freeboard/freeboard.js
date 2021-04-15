@@ -30,9 +30,10 @@ router.get('/', function(req, res) {
 */
 
 router.get('/', function (req, res) {
+  var info = auth.statusUI(req, res);
   getFreeboard(req._parsedOriginalUrl.query, function(result){
     res.render('freeboard/freeboard', {
-      result: result,
+      result: result, info // 
     });
   });
 });

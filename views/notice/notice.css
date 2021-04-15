@@ -12,3 +12,48 @@
 tbody tr:hover{
   background-color: var(--light);
 }
+
+#testing {
+  margin: 50px 0px 50px 0px;
+  position: relative;
+  float: right;
+  width: 20%;
+  height: 300px;
+  transform: translate(0, 0);
+  background-color: black;
+}
+
+.message{
+  width: 80%;
+  height: 15%;
+  font-size: 15px;
+  margin: 5px;
+  padding: 10px;
+  border-radius: 5px;
+  color: var(--dark);
+  background-color: #eceff1;
+}
+.message:hover{
+  background-color: LightGrey;
+}
+.message a{
+  font-size: 14px;
+  margin: 3px;
+  padding: 13px 14px;
+  border-radius: 5px;
+  color: var(--dark);
+  background-color: #eceff1;
+  width: 100%;
+  height: 100%;
+  font-weight: bold;
+  text-decoration:none;
+}
+
+#poster-content {
+  resize: none;
+  width: 100%;
+  height: 100%;
+  border: 1px solid black;
+  border-radius: 3px;
+  padding:5px;
+}

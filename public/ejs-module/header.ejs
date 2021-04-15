@@ -2,14 +2,12 @@
 <header>
   <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
     <div class="container-fluid">
-      
+
       <!-- 타이틀 -->
       <a class="navbar-brand" href="/">미니붐</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-
-      <script src="../javascripts/cookies.js"></script>
 
       <!-- 네비게이션바 -->
       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
@@ -19,12 +17,12 @@
             <a class="nav-link" href="#">사이트 안내</a>
           </li>
           <% if(info.state == "Member") {%> // 로그인 시 푸시알림출력
+          <script src="/index/index_push_local.js"></script> <!-전역 자바스크립트 라이브러리로 변경할것! 04-08 ->
           <li class="nav-item" id="pB">
             <button class="btn btn-primary btn-l" id="subscribe"></button>
           </li>
           <% } %>
         </ul>
-
         <!-- 오른쪽 네비게이션 바 -->
         <div class="nav-item">
           <ul class="navbar-nav me-auto mb-2 mb-md-0">
@@ -38,7 +36,6 @@
               <ul class="dropdown-menu" aria-labelledby="dropdown01">
                 <li><a class="dropdown-item" href="/notice">알람 관리</a></li>
                 <li><a class="dropdown-item" onclick="logout()" href="/logout">Logout</a></li>
-
               </ul>
             </li>
             <!-- user dropdown-->
@@ -47,6 +44,7 @@
           </ul>
         </div>
       </div>
+
     </div>
   </nav>
 </header>
