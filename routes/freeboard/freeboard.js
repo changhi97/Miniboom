@@ -29,11 +29,11 @@ router.get('/', function(req, res) {
 });
 */
 
-router.get('/', function (req, res) {
+router.get('/', function (req, res, next) {
   var info = auth.statusUI(req, res);
   getFreeboard(req._parsedOriginalUrl.query, function(result){
     res.render('freeboard/freeboard', {
-      result: result, info // 
+      result: result, info // result와 info 값을 리턴(?)
     });
   });
 });
@@ -44,30 +44,19 @@ module.exports = router;
 
 
 function getFreeboard(msg, callback){
-
   try{
-    //split()메소드는 String 객체를 지정한 구분자로 여러개로 나눈다.
-    var boardnum = msg.split("=")[1];
-    // db는 0번부터 시작한다. 0-9는 총 10개
-    boardnum = ((boardnum-1)*10);
+
+    var boardnum = msg.split("=")[1]; //split()메소드는 String 객체를 지정한 구분자로 여러개로 나눈다.
+
+    boardnum = ((boardnum-1)*10); // db는 0번부터 시작한다. 0-9는 총 10개
   } catch{
     boardnum = 0;
   }
 
-/*
-  var sql  = "SELECT b.id, b.title, u.nickname, b.writer_id, b.created, b.view ";
-      sql += "FROM board b "
-      sql += "JOIN user_info u "
-      sql += "ON b.writer_id = u.id "
-      sql += "WHERE (@rownum:=0)=0 "
-      sql += "ORDER BY b.created DESC "
-      sql += "limit "+boardnum+", 10;";
-*/
   var sql = "SELECT num, title, user_id, created, views from FREEBOARD FB "; //FREEBOARD FB는 FREEBOARD를 FB로 사용한다고 정의함
       sql += "WHERE (@rownum:=0)=0 "
       sql += "ORDER by FB.created DESC "
       sql += "limit "+boardnum+", 10;";
-
 
   var sql2 = "SELECT COUNT(*) AS num FROM FREEBOARD";
 

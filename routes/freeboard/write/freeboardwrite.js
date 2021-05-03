@@ -8,21 +8,22 @@ var conn = require('../../../public/javascripts/mysql');
 /* parse : bodyParser */
 router.use(bodyParser.json());
 //app.set('trust proxy', true)
+result = null; // test
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
+router.get('/', function(req, res) {
   var info = auth.statusUI(req,res);
-  //freeboard direcotry -> freeboard.ejs
-  res.render('freeboard/write/freeboardwrite', info);
+
+  res.render('freeboard/write/freeboardwrite', { // freeboardwrite.ejs
+    result: info, result // result
   //res.getClientAddress(req);
+  });
 });
 
-router.post('/' , function(req, res, next){
+router.post('/' , function(req, res){
   var flag = req.body['flag'];
-
-  /* */
   if(flag == "addPoster"){
-    var msg=req.body;
+    var msg = req.body;
     var info = auth.statusUI(req, res);
     msg.nickname=info.nickname;
     freeboardAddPoster(msg, function(result){
@@ -32,7 +33,7 @@ router.post('/' , function(req, res, next){
 
 });
 
-/* passport에서 사용 */
+// passport에서 사용
 // passport는 내부적을 session을 사용하기 때문에 session이 활성화되어있어야한다.
 var passport = require('passport'),
   LocalStrategy = require('passport-local').Strategy;
@@ -51,14 +52,6 @@ function freeboardAddPoster(msg, callback){
   //var content = msg.content;
   var summernote = msg.summernote;
   var writer = msg.nickname;
-
-  /*
-  var sql = "INSERT INTO FREEBOARD(title, content, created, views, user_id)";
-      sql +="VALUE ('"+title+"', '"+summernote+"', SYSDATE(), 0, ";
-      sql +="(SELECT user_id FROM USER_INFO WHERE user_id='"+writer+"')";
-      sql +=");";
-  */
-  //var sql = "INSERT INTO FREEBOARD(title, content, created, views, user_id)VALUES ('${data.name}', '${data.message}', '${link}', '${data.type}');
 
   var sql = `INSERT INTO FREEBOARD(title, content, created, views, user_id) VALUES ('${title}', '${summernote}', SYSDATE(), '${0}', '${writer}');`
 

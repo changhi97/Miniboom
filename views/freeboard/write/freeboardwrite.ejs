@@ -1,6 +1,13 @@
 <!doctype html>
 <html lang="kr">
 <head>
+  <!-- 외부 라이브러리 /public에 위치 -->
+  <script src="/javascripts/redirect.js"></script>
+  <script src="/jquery/jquery.js"></script>
+  <script src="/public/javascripts/jquery-3.5.1.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+
+
   <%- include ('../../../public/ejs-module/head.ejs') %>
   <%# include ('../../../public/ejs-module/summernote-include-css-js.ejs') %>
   <script src="https://code.jquery.com/jquery-3.5.1.js"></script> <!-- 슬림에서 바꿈 at 2021-02-26 -->
@@ -29,6 +36,8 @@
 <!-- footer start-->
 <!-- <%# include('../ejs/footer.ejs'); %> -->
 <!-- footer end -->
+
+<!-- Javascript starts-->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
   </body>
   <script type="text/javascript">

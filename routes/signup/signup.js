@@ -131,7 +131,7 @@ router.post('/process', function(req, res) {
 router.get('/confirmEmail', function(req, res) {
   //이메일로 전송된 링크를 클릭하면 여기로 이동한다 req.query.key가  DB(key_for_verify) 에 있는지 보고 있으면 해당 칼럼의 email_verified를 ture로 변경 한다
   var info = auth.statusUI(req, res, "Auth Mail");
-  var key_for_verify = req.query.key;
+  var key_for_verify = req.query.key; // 링크 주소의 개인화된 키를 받아온다(중복될 일 X)
   var sql = "SELECT * FROM USER_INFO WHERE key_for_verify =" + "'" + key_for_verify + "';"
   conn.query(sql, function(err, result) {
     if (err) {
