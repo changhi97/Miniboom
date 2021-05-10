@@ -11,7 +11,6 @@ function getCookie(name) {
 
 function deleteCookie(name) {
   setCookie(name, null, -1);
-
 }
 
 

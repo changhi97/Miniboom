@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="kr">
+
+<head>
+  <!-- 외부 라이브러리 /public에 위치 -->
+  <script src="/javascripts/redirect.js"></script>
+  <script src="/jquery/jquery.js"></script>
+  <script src="/javascripts/jquery-3.5.1.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+
+  <!-- 내부 라이브러리 -->
+  <link rel="stylesheet" href="/index/chat.css">
+  <script src="/index/index_local.js"></script>
+  <script src="/index/index_chat_local.js"></script>
+
+  <!-- ejs 모듈 -->
+  <%- include ('../../public/ejs-module/head.ejs') %>
+</head>
+
+<body>
+  <!-- 상단 네비게이션 바 -->
+  <%- include ('../../public/ejs-module/header.ejs') %>
+<main>
+  <section class="container">
+    <div class="starter-template text-center py-5 px-3">
+    <h1>그룹 워크</h1>
+    <h2>당신의 그룹 워크를 도와드립니다!</h2>
+    
+      <div class="container">
+        <div class = "row">
+        <div class = "col">
+          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+        </div>
+        <div class = "col">
+          <button type="button" class="btn btn-primary btn-lg">Large button</button>
+        </div>
+        <div class = "col">
+
+        </div>
+        </div>
+    </div>
+
+</main>
+
+</body>

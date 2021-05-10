@@ -94,7 +94,6 @@ passport.use(new LocalStrategy({ //로그인 성공여부를 판단
   }
 ));
 
-//왜 안되는것인가
 router.post('/process', passport.authenticate('local', { //로그인시 인증정보를 받을곳
     successRedirect: '/',
     failureRedirect: '/login', //local방식은 username,pass 를 통해서 로그인하는것(구글은 다른것)

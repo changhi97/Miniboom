@@ -15,6 +15,7 @@ const bodyParser = require('body-parser');
 var mysql = require('mysql');
 var auth = require('../../public/javascripts/auth');
 var conn = require('../../public/javascripts/mysql.js'); // mysql connection
+var cookieParser = require('cookie-parser');
 
 // parse : bodyParser
 router.use(bodyParser.json());

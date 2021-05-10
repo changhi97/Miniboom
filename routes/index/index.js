@@ -49,13 +49,13 @@ module.exports = function(io, socketUpload) {
     });
   });
 
-  router.post('/register', (req, res) => {
+  router.post('/freeboard', (req, res) => {
     var info = auth.statusUI(req, res);
 
     const subscription = req.body
-    console.log("----------index/register----------");
+    console.log("----------index/freeboard----------");
     console.log(subscription.subscription);
-    console.log("----------index/register----------");
+    console.log("----------index/freeboard----------");
     set_pushinfo(info.nickname, subscription);
   });
 
@@ -69,11 +69,12 @@ module.exports = function(io, socketUpload) {
     }
 
     /*if (req.session.temp_Id) {
-      console.log("서버에서 알립니다. 비회원이라서 푸쉬 키발급 안됨요");
+      console.log("서버에서 알립니다. 비회원이라서 푸쉬 키발급 안됨");
       key.publicVapidKey = false;
       res.json(key);
       return;
     }*/
+
     var info = auth.statusUI(req, res);
 
     //DB로 부터 구독정보와 구독 여부를 받아온다
@@ -88,9 +89,8 @@ module.exports = function(io, socketUpload) {
 
 
   io.sockets.on('connection', function(socket) {
-    /* 새로운 유저가 접속했을 경우 다른 소켓에게도 알려줌 */
-
-    /* 새로운 유저 접속시, 소켓 연결 */
+    //새로운 유저가 접속했을 경우 다른 소켓에게도 알려줌
+    // 새로운 유저 접속시, 소켓 연결
     socket.on('newUser', function(data) {
       console.log("newUser: ", data);
       var info = data;
@@ -98,31 +98,31 @@ module.exports = function(io, socketUpload) {
 
       var chk = index_chat_map.get(info.nickname)
       if (!chk) {
-        //이미 접속되어있는 아이디이면 알림x
+        // 이미 접속되어있는 아이디이면 알림x
         socket.emit("newUser_response", info);
       }
-      //단 소켓 아이디만 갱신
+      // 단 소켓 아이디만 갱신
       index_chat_map.put(info.nickname, socket.id);
       console.log("ALL INDEX_CHAT USER");
       console.log(index_chat_map.getAll());
     })
 
-    /* 새로운 유저 소켓 연결 확인시, 접속 알림 */
+    // 새로운 유저 소켓 연결 확인시, 접속 알림
     socket.on("newUser_notice", function(data) {
       var info = data;
       io.emit("newUser_notice", info);
     })
 
-    /* 전송한 메시지 받기 */
+    // 전송한 메시지 받기
     socket.on('message', function(data) {
-      /* 받은 데이터에 누가 보냈는지 이름을 추가 */
+      // 받은 데이터에 누가 보냈는지 이름을 추가
       var info = data;
       info.name = socket.name;
       info.type = "text";
       io.emit('update', info);
     })
 
-    /* 특정 사용자에게만 전송 */
+    // 특정 사용자에게만 전송
     socket.on('only', function(data) {
       //console.log("only server1: ",data);
       //console.log("only server2: ",index_chat_map.get(data.reciver));
@@ -131,10 +131,10 @@ module.exports = function(io, socketUpload) {
       io.to(reciver).emit('only', data);
     })
 
-    /* 접속 종료 */
+    // 접속 종료
     socket.on('disconnect', function() {
       //console.log(socket.name + '님이 나가셨습니다.')
-      /* 나가는 사람을 제외한 나머지 유저에게 메시지 전송 */
+      // 나가는 사람을 제외한 나머지 유저에게 메시지 전송
       //보내는 사람 받는 사람 socketid를 모두 알아야 한다.
       /*
       socket.broadcast.emit('disconnection', {
@@ -142,7 +142,7 @@ module.exports = function(io, socketUpload) {
       });*/
     })
 
-    /*** file upload 를위함 ***/
+    // file upload 를 위함
     let uploader = new socketUpload();
 
     // @breif 업로드 경로를 지정
@@ -166,10 +166,10 @@ module.exports = function(io, socketUpload) {
     uploader.on("error", function(event) {
       console.log("Error from uploader", event);
     });
-    /*** file upload 를위함 ***/
+    // file upload 를위함
 
   });
-  /* 소켓통신 */
+  // 소켓통신
   return router;
 }
 

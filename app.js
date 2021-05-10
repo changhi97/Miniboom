@@ -1,7 +1,7 @@
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+var logger = require('morgan'); // debug용으로써 HTTP 요청, 주소, 응답속도, 응답바이트를 표시함
 var session = require('express-session');
 var app_s = express();
 var app = express(); // 푸시 알림이 80번 포트로 진행되기에 삭제하지 말것
@@ -88,8 +88,9 @@ var signupRouter = require('./routes/signup/signup'); // 회원가입 라우터
 var push_testRouter = require('./routes/push_test/push_test'); // 푸시알림 테스트 라우터
 var push_notificationRouter = require('./routes/push_notification/push_notification'); // 푸시메시지 보내기위한 라우터
 
-//0322 추가 쪽지, 푸시알람 페이지
-var noticeRouter = require('./routes/notice/notice');
+var noticeRouter = require('./routes/notice/notice'); //0322 추가 쪽지, 푸시알람 페이지
+
+var groupworkRouter = require('./routes/groupwork/groupwork'); // 그룹워크 라우터
 
 app_s.use(logger('dev'));
 app_s.use(express.json());
@@ -111,6 +112,8 @@ app_s.use('/push_notification', push_notificationRouter);
 
 //0322
 app_s.use('/notice', noticeRouter);
+
+app_s.use('/groupwork', groupworkRouter);
 
 /**
  * Normalize a port into a number, string, or false.

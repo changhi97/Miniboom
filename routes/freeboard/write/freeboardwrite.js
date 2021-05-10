@@ -4,34 +4,33 @@ var auth = require('../../../public/javascripts/auth');
 const bodyParser = require('body-parser');
 var app = express();
 var conn = require('../../../public/javascripts/mysql');
+var cookieParser = require('cookie-parser');
 
-/* parse : bodyParser */
 router.use(bodyParser.json());
-//app.set('trust proxy', true)
-result = null; // test
 
-/* GET users listing. */
+// GET users listing
 router.get('/', function(req, res) {
   var info = auth.statusUI(req,res);
 
+  router.post('/' , function(req, res){
+    var flag = req.body['flag'];
+    if(flag == "addPoster"){
+      var msg = req.body;
+      var info = auth.statusUI(req, res);
+      msg.nickname=info.nickname;
+      freeboardAddPoster(msg, function(result){
+        res.json(result);
+      });
+    }
+  });
+
   res.render('freeboard/write/freeboardwrite', { // freeboardwrite.ejs
-    result: info, result // result
+    info: info,
   //res.getClientAddress(req);
   });
 });
 
-router.post('/' , function(req, res){
-  var flag = req.body['flag'];
-  if(flag == "addPoster"){
-    var msg = req.body;
-    var info = auth.statusUI(req, res);
-    msg.nickname=info.nickname;
-    freeboardAddPoster(msg, function(result){
-      res.json(result);
-    });
-  }
 
-});
 
 // passport에서 사용
 // passport는 내부적을 session을 사용하기 때문에 session이 활성화되어있어야한다.
@@ -54,7 +53,6 @@ function freeboardAddPoster(msg, callback){
   var writer = msg.nickname;
 
   var sql = `INSERT INTO FREEBOARD(title, content, created, views, user_id) VALUES ('${title}', '${summernote}', SYSDATE(), '${0}', '${writer}');`
-
 
   conn.query(sql, function (err, result) {
     if (err) throw err;

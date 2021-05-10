@@ -6,48 +6,7 @@
     <script src="/jquery/jquery.js"></script>
     <script src="/public/javascripts/jquery-3.5.1.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <!-- Bootstrap core CSS -->
-    <!CSS 주석 처리 >
-    <!--
-    <style>
-      .bd-placeholder-img {
-        font-size: 1.125rem;
-        text-anchor: middle;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        user-select: none;
-      }
-
-      @media (min-width: 768px) {
-        .bd-placeholder-img-lg {
-          font-size: 3.5rem;
-        }
-      }
-      body {
-        padding-top: 5rem;
-      }
-
-      /* 중앙 카테고리 3개를 위한 CSS */
-      .marketing .col-lg-4 {
-        margin-bottom: 1.5rem;
-        text-align: center;
-      }
-      .marketing h2 {
-        font-weight: 400;
-      }
-      .marketing .col-lg-4 p {
-        margin-right: .75rem;
-        margin-left: .75rem;
-      }
-    -->
-
     </style>
-
-
-    <!-- Custom styles for this template -->
-    <!--
-    <link href="starter-template.css" rel="stylesheet">
-    -->
     <%- include ('../../public/ejs-module/head.ejs') %>
   </head>
   <body>
@@ -61,8 +20,13 @@
     <h1>자유게시판</h1>
 
     <p class="lead">자유롭지만 방종은 안된답니다.</p>
+    <p class="lead">회원만 글 작성이 가능하며 비회원은 댓글 작성만 가능합니다.</p>
+
+    <% if(info.state == "Member") {%>
     <p><a href="./write">글쓰기</a></p>
-    <table class=".themed-grid-col">
+    <% } %>
+
+    <table class="table table-bordered">
       <thead>
         <tr>
           <th scope="col-4">글 번호</th>
@@ -73,7 +37,6 @@
         </tr>
       </thead>
       <tbody>
-
         <% for (var i=0; i<result.data.length; i++){ %>
         <tr id="<%= result.data[i].num %>" onclick="getPoster(id)">
           <td> <%= result.data[i].num %> </td>
@@ -81,15 +44,9 @@
           <td> <%= result.data[i].user_id %> </td>
           <td> <%= result.data[i].created %> </td>
           <td> <%= result.data[i].views %> </td>
-          <td id="<%= 'view' + result.data[i].id %>"> <%= result.data[i].view %> </td>
         </tr>
         <% } %>
-
       </tbody>
-
-
-
-  </div>
 
 </main> <!-- /.container -->
 
