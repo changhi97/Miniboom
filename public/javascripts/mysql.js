@@ -1,4 +1,3 @@
-console.log("This is mysql.js");
 var mysql = require('mysql');
 var mysqlkey = require('../../.key/mysql-key.json');
 

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="kr">
+  <head>
+    <!-- 외부 라이브러리 /public에 위치 -->
+    <script src="/javascripts/redirect.js"></script>
+    <script src="/jquery/jquery.js"></script>
+    <script src="/public/javascripts/jquery-3.5.1.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    </style>
+    <%- include ('../../../public/ejs-module/head.ejs') %>
+  </head>
+  <body>
+    <!--상단 네비게이션 바 -->
+    <%- include ('../../../public/ejs-module/header.ejs') %>
+
+
+<main class="container">
+
+  <div class="starter-template text-center py-5 px-3">
+    <h1>제목(변수)<%# result.data.title %></h1>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">작성자<th>
+          <th scope="col">조회수</th>
+          <th scope="col">작성날짜</th>
+          <%# if (result.data.writer == result.nickname)  { %>
+          <th scope="col">삭제버튼 예정</th>
+          <%# } %>
+        </tr>
+    </thead>
+  </table>
+    <!-db에서 html 형식으로 글 불러옴->
+    <%# result.data.content %>
+
+    <div class="form-floating">
+      <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea"></textarea>
+      <label for="floatingTextarea">댓글</label>
+    </div>
+
+</main> <!-- /.container -->
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+
+  </body>
+</html>

@@ -27,6 +27,9 @@ var server_s = https.createServer(options, app_s);
 // socket 통신 관련
 var socket = require('socket.io');
 var io = socket(server_s);
+const indexSocket = io.of('/');
+const groupworkSocket = io.of('/groupwork');
+
 
 // 0318 소켓통신시 파일 업로드 하기위한 모듈
 const socketUpload = require("socketio-file-upload");
@@ -72,48 +75,51 @@ app.all('*', (req, res, next) => //
   }
 });
 
-var indexRouter = require('./routes/index/index')(io,socketUpload); //메인페이지 라우터
+
+var indexRouter = require('./routes/index/index')(indexSocket,socketUpload); //메인페이지 라우터
+app_s.use('/', indexRouter);
+
 var freeboardRouter = require('./routes/freeboard/freeboard'); // 자유게시판 라우터
+app_s.use('/freeboard', freeboardRouter);
+
 var freeboardwriteRouter = require('./routes/freeboard/write/freeboardwrite'); // 자유게시판 글 쓰기 라우터
+app_s.use('/freeboard/write', freeboardwriteRouter);
 
 var loginRouter = require('./routes/login/login'); //로그인 라우터
+app_s.use('/login', loginRouter);
+
 var logoutRouter = require('./routes/logout/logout'); //로그아웃 라우터
+app_s.use('/logout', logoutRouter);
 
 var questionboardRouter = require('./routes/questionboard/questionboard'); //질문게시판 라우터
+app_s.use('/questionboard', questionboardRouter);
 
-// var chatRouter = require('./routes/chat/chat')(io,socketUpload); // 채팅 라우터
 var signupRouter = require('./routes/signup/signup'); // 회원가입 라우터
+app_s.use('/signup', signupRouter);
 
 //0305 추가 push_test, push_notification
 var push_testRouter = require('./routes/push_test/push_test'); // 푸시알림 테스트 라우터
+app_s.use('/push_test', push_testRouter); //0305 추가 push_test, push_notification
+
 var push_notificationRouter = require('./routes/push_notification/push_notification'); // 푸시메시지 보내기위한 라우터
+app_s.use('/push_notification', push_notificationRouter);
 
 var noticeRouter = require('./routes/notice/notice'); //0322 추가 쪽지, 푸시알람 페이지
+app_s.use('/notice', noticeRouter);
 
-var groupworkRouter = require('./routes/groupwork/groupwork'); // 그룹워크 라우터
+var groupworkRouter = require('./routes/groupwork/groupwork')(groupworkSocket,socketUpload); // 그룹워크 라우터
+app_s.use('/groupwork', groupworkRouter);
+
+// 에러 발생중
+// Module not found
+var freeboardPostRouter = require('./routes/freeboard/post/freeboardpost');
+app_s.use('/freeboard/post', freeboardPostRouter);
 
 app_s.use(logger('dev'));
 app_s.use(express.json());
 app_s.use(express.urlencoded({ extended: false }));
 app_s.use(cookieParser());
 
-app_s.use('/', indexRouter);
-app_s.use('/freeboard', freeboardRouter);
-app_s.use('/login', loginRouter);
-app_s.use('/questionboard', questionboardRouter);
-//app_s.use('/chat', chatRouter);
-app_s.use('/signup', signupRouter);
-app_s.use('/logout', logoutRouter);
-app_s.use('/freeboard/write', freeboardwriteRouter);
-
-//0305 추가 push_test, push_notification
-app_s.use('/push_test', push_testRouter);
-app_s.use('/push_notification', push_notificationRouter);
-
-//0322
-app_s.use('/notice', noticeRouter);
-
-app_s.use('/groupwork', groupworkRouter);
 
 /**
  * Normalize a port into a number, string, or false.

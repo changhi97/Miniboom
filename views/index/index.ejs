@@ -31,21 +31,22 @@
         <p class="lead">비회원도 참여 가능한 프로그래밍 커뮤니티 웹 사이트</p>
         <div class="row">
           <div class="col-lg-4">
-            <img class="rounded-circle" src="images/undraw_profile_1.svg" alt="Generic placeholder image" width="140" height="140">
+            <img class="rounded-circle" src="../images/undraw_profile_1.svg" alt="Generic placeholder image" width="140" height="140">
             <h2>질문</h2>
             <p>어떤 질문이라도 쓸모없는 질문은 없습니다.</p>
             <p>Ask freely. There is no useless question. </p>
             <p><a class="btn btn-secondary" href="/questionboard" role="button">질문 게시판 이동 »</a></p>
           </div>
           <div class="col-lg-4">
-            <img class="rounded-circle" src="images/undraw_profile_3.svg" alt="Generic placeholder image" width="140" height="140">
+            <img class="rounded-circle" src="../images/undraw_profile_3.svg" alt="Generic placeholder image" width="140" height="140">
             <h2>그룹</h2>
             <p>실시간 의사소통이 필요할때도 있는법이지요.</p>
             <p>Chill and Chat</p>
-            <p><a class="btn btn-secondary" href="/groupwork" role="button">채팅 하기 »</a></p>
+            <span><a class="btn btn-secondary" onclick="openMakeRoomModal();" role="button">방 만들기 »</a></span>
+            <span><a class="btn btn-secondary" onclick="openEnterRoomModal();" role="button">방 입장하기 »</a></span>
           </div>
           <div class="col-lg-4">
-            <img class="rounded-circle" src="images/undraw_profile_2.svg" alt="Generic placeholder image" width="140" height="140">
+            <img class="rounded-circle" src="../images/undraw_profile_2.svg" alt="Generic placeholder image" width="140" height="140">
             <h2>개발 중</h2>
             <p>자유롭지만 방종은 안된답니다.</p>
             <p>Freedom! But don't bother others </p>
@@ -92,6 +93,35 @@
   </div>
 </div>
 
+<!-- MakeRoom messageModal-->
+<div class="modal" id="MakeRoomModal" data-backdrop="false" style="display: none;">
+<div class="modal-dialog" role="document">
+  <div class="modal-content">
+    <div class="modal-header"><span class="modal-title">MAKE ROOM</span></div>
+    <div class="modal-body"><input type="text" class="Make-roomId" id="poster-content" placeholder="ID"></div>
+    <div class="modal-body"><input type="text" class="Make-roomPSW" id="poster-content" placeholder="PSW"></div>
+    <div class="modal-footer">
+      <a class="btn btn-primary" id="MakeRoom" onclick="MakeRoom();">MAKE</a>
+      <button class="btn btn-secondary" onclick="closeMakeRoomModal();" >Cancel</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- EnterRoom messageModal-->
+<div class="modal" id="EnterRoomModal" data-backdrop="false" style="display: none;">
+<div class="modal-dialog" role="document">
+  <div class="modal-content">
+    <div class="modal-header"><span class="modal-title">Enter ROOM</span></div>
+    <div class="modal-body"><input type="text" class="Enter-roomId" id="poster-content" placeholder="ID"></div>
+    <div class="modal-body"><input type="text" class="Enter-roomPSW" id="poster-content" placeholder="PSW"></div>
+    <div class="modal-footer">
+      <a class="btn btn-primary" id="EnterRoom" onclick="EnterRoom();">Enter</a>
+      <button class="btn btn-secondary" onclick="closeEnterRoomModal();" >Cancel</button>
+    </div>
+  </div>
+</div>
+</div>
   <!-- footer start-->
   <!-- <%# include('../ejs/footer.ejs'); %> -->
   <!-- footer end -->
@@ -108,10 +138,7 @@
 
 <!-- 내부 자바스크립트 -->
 <script type="text/javascript">
-  // index_local.js에 있으며 async 함
-  // 비동기 처리
   main();
-
 </script>
 
 

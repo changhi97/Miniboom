@@ -1,4 +1,5 @@
-var socket = io('/')
+var socket = io('/roomChat')
+let siofu = new SocketIOFileUpload(socket);
 
 /*
  *
@@ -10,6 +11,7 @@ function startSocket() {
   update();
   onlyYou();
   disconnect();
+  document.getElementById("upload_btn").addEventListener("click", siofu.prompt, false);
 }
 
 
@@ -24,8 +26,96 @@ function connect() {
 }
 
 function newUser_response() {
-  socket.on('newUser_response', function(info) {
-    console.log('newUser_response: ',info );
+  socket.on('newUser_response', function(data) {
+    var info = data.info
+    console.log('newUser_response: ', info);
+
+    var nickname = getCookie("nickname"); //현재 접속한 유저의 아이디 data의 nickname과 비교하기위함
+    for (var index in data.preChat) {
+      var load_data = data.preChat[index];
+      //console.log(load_data);
+      //로드 데이터가 text일 경우
+      if (load_data.data_type === "text") {
+        var chat = document.getElementById('chat');
+        var message = document.createElement('div');
+        var name = document.createElement('a');
+        var content = document.createElement('div');
+        var time = document.createElement('div');
+        name.setAttribute("class", "chat_name");
+        content.setAttribute("class", "chat_content");
+        time.setAttribute("class", "chat_time");
+
+        var name_Node = document.createTextNode(`${load_data.user_id}`);
+        var content_Node = document.createTextNode(`${load_data.chat_data}`);
+        var time_Node = document.createTextNode(`-${load_data.chat_time}-`);
+
+        var className = 'me';
+        if (nickname !== load_data.user_id) {
+          className = 'you';
+          name.addEventListener('click', function() {
+            openModal(load_data.user_id);
+          });
+        }
+
+
+        message.classList.add(className);
+        name.appendChild(name_Node);
+        content.appendChild(content_Node);
+        time.appendChild(time_Node);
+        message.appendChild(name);
+        message.appendChild(content);
+        message.appendChild(time);
+        chat.appendChild(message);
+
+        messageModal(className, message, name, load_data.user_id);
+        // console.log(message);
+        // console.log(time);
+      }
+      //전송받은 데이터가 file일 경우
+      else {
+        var file_link = load_data.file_link;
+        file_link = file_link.replaceAll('"', '');
+
+        var chat = document.getElementById('chat');
+        var message = document.createElement('div');
+        var name = document.createElement('div');
+        var content = document.createElement('div');
+        var time = document.createElement('div');
+        name.setAttribute("class", "chat_name");
+        content.setAttribute("class", "chat_content");
+        time.setAttribute("class", "chat_time");
+
+        var name_Node = document.createTextNode(`${load_data.user_id}`);
+        var content_Node = document.createElement('a');
+        var file_img = document.createElement('img');
+        var time_Node = document.createTextNode(`-${load_data.chat_time}-`);
+
+        content_Node.setAttribute('href', file_link);
+        content_Node.innerText = `${load_data.chat_data}`;
+        content_Node.setAttribute('download', `${load_data.chat_data}`);
+        file_img.setAttribute("src", "/images/file_icon.svg");
+
+        var className = 'me';
+        if (nickname !== load_data.user_id) {
+          className = 'you';
+          name.addEventListener('click', function() {
+            openModal(load_data.user_id);
+          });
+        }
+
+        message.classList.add(className);
+        name.appendChild(name_Node);
+        content.appendChild(file_img);
+        content.appendChild(content_Node);
+        time.appendChild(time_Node);
+        message.appendChild(name);
+        message.appendChild(content);
+        message.appendChild(time);
+        chat.appendChild(message);
+
+        messageModal(className, message, name, load_data.user_id);
+      }
+    }
 
     socket.emit('newUser_notice', info);
   })
@@ -36,9 +126,7 @@ function newUser_response() {
  */
 function newUser_notice() {
   socket.on('newUser_notice', function(data) {
-
-    var info = data;
-
+    var info = data.info;
     // HTML
     var chat = document.getElementById('chat')
     var message = document.createElement('div')
@@ -85,7 +173,7 @@ function update() {
       var hours = today.getHours(); // 시
       var minutes = today.getMinutes(); // 분
       var localtime = `${hours} : ${minutes}`;
-      var nickname = $("#nickname").val();
+      var nickname = getCookie("nickname");
 
       var chat = document.getElementById('chat');
       var message = document.createElement('div');
@@ -117,6 +205,65 @@ function update() {
       message.appendChild(time);
       chat.appendChild(message);
 
+
+      // 스크롤바 맨 아래로
+      $("#chat").scrollTop($("#chat")[0].scrollHeight);
+      $("#test").focus();
+    }
+
+    // 전송받은 데이터가 file일 경우
+    else {
+      console.log("데이터 file: ", data);
+
+      var file_link = data.link;
+      file_link = file_link.replaceAll('"', '');
+
+      var today = new Date();
+      var hours = today.getHours(); // 시
+      var minutes = today.getMinutes(); // 분
+      var localtime = `${hours} : ${minutes}`;
+      var nickname = getCookie("nickname");
+
+      var chat = document.getElementById('chat');
+      var message = document.createElement('div');
+      var name = document.createElement('div');
+      var content = document.createElement('div');
+      var time = document.createElement('div');
+
+      name.setAttribute("class", "chat_name");
+      content.setAttribute("class", "chat_content");
+      time.setAttribute("class", "chat_time");
+
+      var name_Node = document.createTextNode(`${data.name}`);
+      var content_Node = document.createElement('a');
+      var file_img = document.createElement('img');
+      var time_Node = document.createTextNode(`-${localtime}-`);
+
+      content_Node.setAttribute('href', file_link);
+      content_Node.innerText = `${data.message}`;
+      content_Node.setAttribute('download', `${data.message}`);
+      file_img.setAttribute("src", "/images/file_icon.svg");
+
+
+      var className = 'me';
+      if (nickname !== data.name) {
+        className = 'you';
+        name.addEventListener('click', function() {
+          openModal(data.name);
+        });
+      }
+
+      message.classList.add(className);
+      name.appendChild(name_Node);
+      content.appendChild(file_img);
+      content.appendChild(content_Node);
+      time.appendChild(time_Node);
+      message.appendChild(name);
+      message.appendChild(content);
+      message.appendChild(time);
+      chat.appendChild(message);
+
+      messageModal(className, message, name, data.name);
 
       // 스크롤바 맨 아래로
       $("#chat").scrollTop($("#chat")[0].scrollHeight);
@@ -191,16 +338,16 @@ function messageModal(className, message, name, nickname) {
 
 function onlyYou() {
   socket.on('only', function(data) {
-      console.log("only local");
-      console.log(data);
-      var memo = document.getElementById('memo');
-      var memo_content = document.createElement('div');
-      memo_content.setAttribute("class", "memo_content");
-      memo_content.innerHTML = data.sender+"</br>"+data.content;
-      memo.appendChild(memo_content);
-      memo_content.addEventListener('click', function() {
-        openReadModal(data);
-      });
+    console.log("only local");
+    console.log(data);
+    var memo = document.getElementById('memo');
+    var memo_content = document.createElement('div');
+    memo_content.setAttribute("class", "memo_content");
+    memo_content.innerHTML = data.sender + "</br>" + data.content;
+    memo.appendChild(memo_content);
+    memo_content.addEventListener('click', function() {
+      openReadModal(data);
+    });
   });
 }
 
@@ -218,7 +365,7 @@ function sendMemo() {
     sender: sender,
     content: content
   }
-  console.log("sendMemo: ",msg);
+  console.log("sendMemo: ", msg);
   $.ajax({
     type: "POST",
     url: "/push_Notification",
@@ -226,13 +373,12 @@ function sendMemo() {
     contentType: 'application/json',
     data: JSON.stringify(msg),
     success: function(result) {
-      console.log("result",result);
+      console.log("result", result);
       closeModal();
     }
   });
   socket.emit('only', msg);
 }
-
 
 function openModal(name) {
   $("#messageModal").css("display", "block");
@@ -245,7 +391,7 @@ function openModal(name) {
 }
 
 function openReadModal(data) {
-  console.log("openReadModal",data);
+  console.log("openReadModal", data);
   $("#messageModal").css("display", "block");
   $("#sendMessage").css("display", "none");
   $("#replyMessage").css("display", "block");
@@ -255,10 +401,19 @@ function openReadModal(data) {
   $("#poster-content").attr("readonly", true);
 }
 
-function replyMemo(){
+function replyMemo() {
   var name = $("#message-target").val();
   openModal(name);
 }
+
 function closeModal() {
   $("#messageModal").css("display", "none");
+}
+
+//If you want to copyText from Element
+function copyLink() {
+  let element = document.getElementById('roomLink');
+  let elementText = element.textContent;
+  navigator.clipboard.writeText(elementText);
+  alert('링크가 복사되었습니다');
 }

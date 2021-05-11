@@ -16,33 +16,65 @@ var mysql = require('mysql');
 var auth = require('../../public/javascripts/auth');
 var conn = require('../../public/javascripts/mysql.js'); // mysql connection
 var cookieParser = require('cookie-parser');
+/*
+var url = require('url');
+var curURL = url.parse('https://miniboom.site/freeboard');
+var curStr = url.format(curURL);
+
+var querystring = require('querystring'); // 쿼리시트링: 요청 파라미터 구분하기
+var parm = querystring.parse(curURL.query);
+
+console.log('query의 값: %s', param.query);
+*/
 
 // parse : bodyParser
 router.use(bodyParser.json());
-
-
-/* 원본 라우터 렌더링 코드
-router.get('/', function(req, res) {
-  var info = auth.statusUI(req,res);
-  //freeboard direcotry -> freeboard.ejs
-  res.render('freeboard/freeboard', info);
-  //res.getClientAddress(req);
-});
-*/
 
 router.get('/', function (req, res, next) {
   var info = auth.statusUI(req, res);
   getFreeboard(req._parsedOriginalUrl.query, function(result){
     res.render('freeboard/freeboard', {
-      result: result, info // result와 info 값을 리턴(?)
+      result: result, info, // result와 info 값을 리턴(?)
     });
   });
 });
 
 
+//id = post id
+/*
+router.get(':id', function (req, res, next) {
+  console.log("welcome to /:id");
+});
+*/
+
+
+
+//원본 라우터 렌더링 코드
+/*
+router.get('/', function (req, res, next) {
+  var info = auth.statusUI(req, res);
+  getFreeboard(req._parsedOriginalUrl.query, function(result){
+    res.render('freeboard/freeboard', {
+      result: result, info, // result와 info 값을 리턴(?)
+    });
+  });
+});
+*/
+
+/* 백업
+router.get('/', function (req, res, next) {
+  var info = auth.statusUI(req, res);
+  getFreeboard(req._parsedOriginalUrl.query, function(result){
+    res.render('freeboard/freeboard/', {
+      result: result, info, // result와 info 값을 리턴(?)
+    });
+  });
+});
+*/
+
+
+
 module.exports = router;
-
-
 
 function getFreeboard(msg, callback){
   try{

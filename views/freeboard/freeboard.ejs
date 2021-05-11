@@ -20,10 +20,13 @@
     <h1>자유게시판</h1>
 
     <p class="lead">자유롭지만 방종은 안된답니다.</p>
-    <p class="lead">회원만 글 작성이 가능하며 비회원은 댓글 작성만 가능합니다.</p>
 
+
+    <!-회원만 글 작성 가능 ->
     <% if(info.state == "Member") {%>
     <p><a href="./write">글쓰기</a></p>
+    <% } else { %>
+      <p class="lead">회원만 글 작성이 가능하며 비회원은 댓글 작성만 가능합니다.</p>
     <% } %>
 
     <table class="table table-bordered">
