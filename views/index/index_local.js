@@ -80,11 +80,14 @@ function MakeRoom(){
     data: JSON.stringify(msg),
     success: function(result) {
       console.log(result);
-      if(result){
+      if(result===true){
         alert("생성성공!");
-        window.open("https://miniboom.site/groupwork", "_self");
-      }else{
+        window.open("https://miniboom.site/groupwork?roomId="+roomId+"&roomPSW="+roomPSW, "_self");
+      }else if(result ===false){
         alert("방 아이디가 중복됩니다!");
+        window.open("https://miniboom.site/", "_self");
+      }else if(result==="NoMember"){
+        alert("방 생성은 로그인이 필요합니다!");
         window.open("https://miniboom.site/", "_self");
       }
     }
@@ -112,7 +115,7 @@ function EnterRoom(){
     success: function(result) {
       console.log(result);
       if(result===true){
-        window.open("https://miniboom.site/groupwork", "_self");
+        window.open("https://miniboom.site/groupwork?roomId="+roomId+"&roomPSW="+roomPSW, "_self");
       }else if(result === "room"){
         alert("방이 존재하지 않습니다!");
         window.open("https://miniboom.site/", "_self");

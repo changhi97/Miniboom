@@ -29,8 +29,10 @@
             <li class="nav-item">
               <% if(info.state == "nonMember") {%> // 로그아웃 상태
               <a class="btn btn-primary btn-l" href="/login">로그인</a>
-              <% }else { %>
+              <% } %>
               <!-- user dropdown-->
+              
+              <% if(info.state =="Member") { %>
             <li class="nav-item dropdown">
               <a class="btn btn-primary btn-l" href="#" id="dropdown01" data-bs-toggle="dropdown" aria-expanded="false"><%=info.nickname%></a>
               <ul class="dropdown-menu" aria-labelledby="dropdown01">
@@ -39,7 +41,7 @@
               </ul>
             </li>
             <!-- user dropdown-->
-            <% }%>
+              <% } %>
             </li>
           </ul>
         </div>

@@ -27,14 +27,17 @@ var parm = querystring.parse(curURL.query);
 console.log('query의 값: %s', param.query);
 */
 
+module.exports = router;
+
 // parse : bodyParser
 router.use(bodyParser.json());
 
-router.get('/', function (req, res, next) {
-  var info = auth.statusUI(req, res);
+router.get('/', async function (req, res) { // await 키워드를 사용하기 위해서는 async function을 사용해야함
+  var info = auth.statusUI(req, res); // 쿠키 정보
+
   getFreeboard(req._parsedOriginalUrl.query, function(result){
     res.render('freeboard/freeboard', {
-      result: result, info, // result와 info 값을 리턴(?)
+      result: result, info, // result에 result와 info를 넣어 리턴
     });
   });
 });
@@ -74,7 +77,7 @@ router.get('/', function (req, res, next) {
 
 
 
-module.exports = router;
+
 
 function getFreeboard(msg, callback){
   try{

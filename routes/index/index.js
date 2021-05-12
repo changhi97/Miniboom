@@ -53,9 +53,9 @@ module.exports = function(io,socketUpload) {
     var info = auth.statusUI(req, res);
 
     const subscription = req.body
-    console.log("----------index/register----------");
-    console.log(subscription.subscription);
-    console.log("----------index/register----------");
+    // console.log("----------index/register----------");
+    // console.log(subscription.subscription);
+    // console.log("----------index/register----------");
     set_pushinfo(info.nickname,subscription);
   });
 
@@ -184,10 +184,10 @@ function get_pushinfo(nickname,callback) {
     if(subscription !== null){
       subscription = JSON.parse(result[0]['subscription']);
     }
-    console.log("----------GET subscription----------");
-    console.log(isSubscribed);
-    console.log(subscription);
-    console.log("----------GET subscription----------");
+    // console.log("----------GET subscription----------");
+    // console.log(isSubscribed);
+    // console.log(subscription);
+    // console.log("----------GET subscription----------");
     callback(result);
   });
 }
@@ -195,10 +195,10 @@ function get_pushinfo(nickname,callback) {
 function set_pushinfo(nickname,info) {
   var isSubscribed = info.isSubscribed;
   var subscription = JSON.stringify(info.subscription);
-  console.log("----------PUSH subscription----------");
-  console.log("isSubscribed : ", isSubscribed);
-  console.log("subscription : ", subscription);
-  console.log("----------PUSH subscription----------");
+  // console.log("----------PUSH subscription----------");
+  // console.log("isSubscribed : ", isSubscribed);
+  // console.log("subscription : ", subscription);
+  // console.log("----------PUSH subscription----------");
   var sql = `UPDATE USER_INFO SET isSubscribed='${isSubscribed}', subscription='${subscription}'
               WHERE user_id = '${nickname}';`
   conn.query(sql, function(err, result) {

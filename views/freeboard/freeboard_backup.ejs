@@ -18,9 +18,11 @@
 
   <div class="starter-template text-center py-5 px-3">
     <h1>자유게시판</h1>
+
     <p class="lead">자유롭지만 방종은 안된답니다.</p>
 
-    <!-회원만 글 작성 가능하기 위해 글 작성 버튼을 막음 ->
+
+    <!-회원만 글 작성 가능 ->
     <% if(info.state == "Member") {%>
     <p><a href="./write">글쓰기</a></p>
     <% } else { %>
@@ -45,15 +47,12 @@
           <td> <%= result.data[i].user_id %> </td>
           <td> <%= result.data[i].created %> </td>
           <td> <%= result.data[i].views %> </td>
-          </tr>
+        </tr>
         <% } %>
       </tbody>
-    </div>
-  </table>
-
-  <!- 게시판 이동을 위한 쿼리문 삽입 예정 ->
 
 </main> <!-- /.container -->
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
 

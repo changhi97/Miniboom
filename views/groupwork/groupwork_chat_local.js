@@ -1,4 +1,4 @@
-var socket = io('/roomChat')
+var socket = io('/groupwork');
 let siofu = new SocketIOFileUpload(socket);
 
 /*
@@ -116,7 +116,6 @@ function newUser_response() {
         messageModal(className, message, name, load_data.user_id);
       }
     }
-
     socket.emit('newUser_notice', info);
   })
 }
@@ -154,7 +153,8 @@ function disconnect() {
     message.classList.add(className)
     message.appendChild(node)
     chat.appendChild(message)
-
+    console.log("새로운 방장은");
+    console.log(data.newMaster);
     // 스크롤바 맨 아래로
     $("#chat").scrollTop($("#chat")[0].scrollHeight);
   });

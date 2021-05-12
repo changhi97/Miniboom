@@ -36,6 +36,10 @@ li{
 .copytag:hover{
   font-weight: bold;
 }
+
+#roomInfo ul li{
+  font-size: 13px;
+}
 /* progress */
 @-webkit-keyframes progress-bar-stripes {
   from {

@@ -17,7 +17,8 @@
 <main class="container">
 
   <div class="starter-template text-center py-5 px-3">
-    <h1>제목(변수)<%# result.data.title %></h1>
+    <h1>제목(변수)<%# sql 쿼리문의 제목 %></h1>
+    <h1>변수명: <%= pageId %></h1>
     <table class="table">
       <thead>
         <tr>
@@ -31,6 +32,7 @@
     </thead>
   </table>
     <!-db에서 html 형식으로 글 불러옴->
+    <p> test</p>
     <%# result.data.content %>
 
     <div class="form-floating">

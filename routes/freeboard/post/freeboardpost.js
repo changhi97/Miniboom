@@ -5,16 +5,34 @@ const bodyParser = require('body-parser');
 var app = express();
 var conn = require('../../../public/javascripts/mysql');
 var cookieParser = require('cookie-parser');
+module.exports = router;
 
 router.use(bodyParser.json());
 
-router.get('/:pageId',function(req, res){
-  result = 1;
-  info = 1;
+router.get('/:pageId',async function(req, res){
+  var info = auth.statusUI(req, res); // 쿠키 정보
+
+  var result = 0; // 일단 0으로 초기화
+  //var pageId =  -1; // 초기화
+
+  this.pageId = pageId;
+
+  //getPost(function(pageId, result) { // 페이지 정보를 얻기위한 함수
   res.render('freeboard/post/freeboardPost', {
-    result: result, info, // result와 info 값을 리턴(?)
+    result: result,
+    info: info, // result와 info 값을 리턴(?)
+    pageId: req.params.pageId
   });
+//});
 });
+
+// 미완성
+// 함수 이름: getPoster
+// 함수 목적: 글의 정보(글 번호, 제목, 작성자, 내용, 작성날짜, 조회수, 추천수  )
+function getPost(pageId, callback) {
+  var sql = "SELECT num, title, user_id, content, created, views, recommend from FREEBOARD";
+
+}
 
 // 백업
 /*
@@ -33,8 +51,9 @@ router.get('/:pageId',function(req,res){
     res.send(html);
 });
 */
-module.exports = router;
+
 /*
+
 router.get('/', function (req, res) {
 
   getBoard(req._parsedOriginalUrl.query, function(result){
