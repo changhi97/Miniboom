@@ -13,9 +13,9 @@ var crypto = require('crypto');
 var HashMap = require('hashmap');
 
 var index_chat_map = new HashMap();
-var roomList = new HashMap(); //회원 아이디와 roomId저장
-var roomMap = new HashMap(); //roomId와 비밀번호 저장
-var roomMaster = new HashMap(); //roomId와 방장의 Id저장
+//var roomList = new HashMap(); //회원 아이디와 roomId저장
+//var roomMap = new HashMap(); //roomId와 비밀번호 저장
+//var roomMaster = new HashMap(); //roomId와 방장의 Id저장
 
 module.exports = function(io, socketUpload) {
   router.use(bodyParser.json());
@@ -27,93 +27,181 @@ module.exports = function(io, socketUpload) {
     var msg = {
       roomId: roomId,
       roomPSW: roomPSW,
-      roomMaster: roomMaster.get(roomId),
       nickname: info.nickname,
       state: info.state
     }
-    res.render('groupwork/groupworkV2', {
-      info: msg
-    });
+    roomMemberALL(msg, function(data) {
+      if (data.result) {
+        res.render('groupwork/groupwork', {
+          info: msg,
+          memberList: data.allUser
+        });
+      } else {
+        res.redirect('/');
+      }
+    })
   });
 
   //makeRoom : 사용자가 설정한 방 아이디와 비밀번호를 수신받고 임의의 접속링크 생성
   // 해시에 링크를 저장할지 key만을 저장할지 ? 링크는 카피할수있는 기능만 제공!
   router.post('/makeRoom', function(req, res, next) {
+    console.log("MAKEROOM POST");
     var info = auth.statusUI(req, res);
-    if (info.nickname === undefined) {
-      res.json("NoMember");
+    if (info.state === "Member") {
+      createRoom(req, function(msg) {
+        if (msg.result) {
+          registMember(msg.data, function(result) {
+            if (result) {
+              res.json(true);
+            } else {
+              console.log("ERROR: MEMBER 등록 실패")
+              res.json(false);
+            }
+          })
+        } else {
+          console.log("ERROR: Room 생성 실패")
+          res.json(false);
+        }
+      });
     } else {
-      var roomInfo = req.body;
-      var roomId = roomInfo.roomId;
-      var roomPSW = roomInfo.roomPSW;
-      var nickname = roomInfo.nickname;
-      var state = roomInfo.state;
-      if (roomMap.get(roomId)) { //중복되는 roomId존재시 실패
-        res.json(false);
-      } else {
-        roomMap.set(roomId, roomPSW);
-        roomList.set(nickname, roomId);
-        roomMaster.set(roomId, nickname);
-        createTable(roomId, function() {
-          res.json(true);
-        })
-      }
+      console.log("ERROR: MEMBER 아님")
+      res.json("NoMember");
     }
   });
 
   router.post('/enterRoom', function(req, res, next) {
+    console.log("ENTERROOM POST");
     var info = auth.statusUI(req, res);
-    var roomInfo = req.body;
-    var roomId = roomInfo.roomId;
-    var roomPSW = roomInfo.roomPSW;
-    var nickname = roomInfo.nickname;
-    var state = roomInfo.state;
-    var flag;
-    var chk = roomMap.get(roomId);
-    if (chk) { //방이 있는지 확인
-      if (chk === roomPSW) {
-        roomList.set(nickname, roomId);
-        flag = true;
-        res.json(flag);
-      } else {
-        flag = "psw"
-        res.json(flag);
-      }
+    if (info.state === "Member") {
+      findRoom(req, function(msg) {
+        if (msg.result) { //방이 존재한다.(비밀번호까지 일치)
+          registMember(msg.data, function(result) { //룸 입장전 정보 등록
+            if (result) {
+              res.json(true);
+            } else {
+              console.log("ERROR: MEMBER 등록 실패")
+              res.json(false);
+            }
+          })
+        } else {
+          console.log("ERROR: Room 정보가 불일치")
+          res.json(false);
+        }
+      });
     } else {
-      flag = "room";
-      res.json(flag);
+      console.log("ERROR: MEMBER 아님")
+      res.json("NoMember");
     }
   });
 
+  router.post('/roomOut', function(req, res, next) {
+    var info = auth.statusUI(req, res);
+    var roomId = req.body.roomId;
+    var userId = req.body.nickname;
+    var data = {
+      roomId: roomId,
+      userId: userId
+    }
+    roomOutMember(data, function(result) {
+      if (result) {
+        roomMember(data, function(result2) {
+          if (result2.master) { //MASTER find
+            newMaster(data, function(result3) {
+              if (result3) {
+                res.json(true);
+              } else {
+                console.log("ERROR: 방장 위임 실패!");
+                res.json(false);
+              }
+            })
+          } else { //MASTER undefined
+            deleteRomm(data, function(result4) {
+              if (result4) {
+                res.json(true);
+              } else {
+                console.log("ERROR: 룸 삭제 실패!");
+                res.json(false);
+              }
+            })
+          }
+        })
+      } else {
+        console.log("ERROR: 나가기 실패!");
+        res.json(false);
+      }
+    })
+  });
+
+  router.post('/todoList', function(req, res, next) {
+    var info = auth.statusUI(req, res);
+    var msg = req.body;
+    var flag = msg.flag;
+    if (flag === "set") {
+      setToDoList(msg, function(result) {
+        if (result) {
+          res.json(result);
+        } else {
+          res.json(false);
+        }
+      })
+    } else if (flag === "get") {
+      getToDoList(msg, function(result) {
+        if (result) {
+          res.json(result);
+        } else {
+          res.json(false);
+        }
+      })
+    } else if (flag === "myList_delete") {
+      deleteMyToDoList(msg, function(result) {
+        if (result) {
+          res.json(result);
+        } else {
+          res.json(false);
+        }
+      })
+    }
+  });
 
   /* 소켓통신 */
   io.on('connection', function(socket) {
     /* 새로운 유저가 접속했을 경우 다른 소켓에게도 알려줌 */
+    console.log("ROOM CONNEXTION");
     var roomId;
     /* 새로운 유저 접속시, 소켓 연결 */
+
     socket.on('newUser', function(data) {
-      console.log("newUser: ", data);
+      console.log("Room newUser");
+      console.log(data);
       var info = data;
       socket.name = info.nickname;
+      roomId = data.roomId;
 
-      roomId = roomList.get(info.nickname);
-      socket.join(roomId);
-      loadChat(roomId, function(result) {
-        io.in(roomId).emit("newUser_response", {
-          info: info,
-          preChat: result
-        });
+      loadToDo(data, function(todo) {
+        if (todo) {
+          loadChat(roomId, function(result) {
+            socket.emit("newUser_response", {
+              info: info,
+              preChat: result,
+              work: todo
+            });
+          })
+        } else {
+          console.log("ERROR : loadToDo ERROR");
+        }
       })
+
+
+      socket.join(roomId);
       index_chat_map.set(info.nickname, socket.id);
     })
 
     /* 새로운 유저 소켓 연결 확인시, 접속 알림 */
     socket.on("newUser_notice", function(data) {
+      console.log("ROOM NOTICE");
       var info = data;
-      //io.emit("newUser_notice", {
-      io.in(roomId).emit("newUser_notice", {
-        info: info
-      });
+      var chk = index_chat_map.get(info.nickname);
+      socket.broadcast.to(roomId).emit("newUser_notice", info);
     })
 
     /* 전송한 메시지 받기 */
@@ -126,7 +214,7 @@ module.exports = function(io, socketUpload) {
 
       saveChat(roomId, info)
       //io.emit('update', info);
-      io.in(roomId).emit('update', info);
+      io.to(roomId).emit('update', info);
     })
 
     /* 특정 사용자에게만 전송 */
@@ -136,29 +224,32 @@ module.exports = function(io, socketUpload) {
       var reciver = index_chat_map.get(data.reciver);
       console.log(reciver);
       //io.to(reciver).emit('only', data);
-      io.in(reciver).emit('only', data);
+      io.to(reciver).emit('only', data);
     })
 
+    /* ToDoList 등록시키기위함 */
+    socket.on('register_ToDoList', function(data) {
+      console.log(data);
+      io.to(roomId).emit('register_ToDoList', data);
+    })
+
+    /* ToDoList의 참여자를 등록시키기위함 */
+    socket.on('with_ToDoList', function(data) {
+      console.log("with_ToDoList");
+      console.log(data);
+      io.to(roomId).emit('with_ToDoList', data);
+    })
+
+    /* ToDoList의 참여자를 삭제키기위함 */
+    socket.on('remove_AllToDoListUser', function(data) {
+      console.log("remove_AllToDoListUser");
+      console.log(data);
+      io.to(roomId).emit('remove_AllToDoListUser', data);
+    })
     /* 접속 종료 */
     socket.on('disconnect', function() {
-      var arr = findClients(roomId);
-      if(arr[0]===undefined){
-        dropTable(roomId);
-        roomList.delete(socket.name);
-      }else{
-        if(roomMaster.get(roomId)===socket.name){
-          roomMaster.set(roomId,arr[0]);
-          roomList.delete(socket.name);
-        }else{
-          roomList.delete(socket.name);
-        }
-      }
-      console.log("배열");
-      console.log(arr);
-      socket.leave(roomId);
-      io.in(roomId).emit('disconnection', {
-        message: socket.name,
-        newMaster : arr[0]
+      socket.broadcast.to(roomId).emit('disconnection', {
+        nickname: socket.name
       });
     })
 
@@ -178,16 +269,19 @@ module.exports = function(io, socketUpload) {
         link: '/' + event.file.pathName,
         type: "file"
       }
+      console.log("SAVE FILE");
+      console.log(data);
+      console.log("SAVE FILE");
       saveChat(roomId, data);
-      io.in(roomId).emit('update', data);
+      io.to(roomId).emit('update', data);
     });
 
     // @breif 오류 처리
     uploader.on("error", function(event) {
       console.log("Error from uploader", event);
+
     });
     /*** file upload 를위함 ***/
-
   });
   /* 소켓통신 */
   return router;
@@ -197,11 +291,11 @@ module.exports = function(io, socketUpload) {
 function saveChat(roomId, data) {
   var link = JSON.stringify(data.link);
   var table = roomId + "DB";
-  var sql = `INSERT INTO ` + table + ` (user_id, chat_data, file_link, data_type)
-              VALUES ('${data.name}', '${data.message}', '${link}', '${data.type}');`
+  var sql = `INSERT INTO CHAT (user_id, chat_data, file_link, data_type, roomId)
+            VALUES('${data.name}', '${data.message}', '${link}', '${data.type}', '${roomId}');`
   conn.query(sql, function(err, result2) {
     if (err) throw err;
-    console.log("DB SAVE", data.name, data.message, data.type);
+    //console.log("DB SAVE", data.name, data.message, data.type);
   });
 }
 
@@ -209,70 +303,370 @@ function saveChat(roomId, data) {
 function loadChat(roomId, callback) {
   // 최근 채팅 내용 100개 까지 불러옴 at 2021-02-23
   //최근 100개출력안됨 at 2021-02-26
-  var table = roomId + "DB";
-  var sql = "SELECT user_id, chat_data, DATE_FORMAT(chat_time, '%h:%i %p') AS chat_time, file_link, data_type"
-  sql += " FROM " + table + " WHERE DATE(chat_time) = DATE(NOW());"
+  var sql = `SELECT user_id, chat_data, DATE_FORMAT(chat_time, '%h:%i %p') AS chat_time, file_link, data_type FROM CHAT WHERE roomId='${roomId}';`;
   conn.query(sql, function(err, result) {
     if (err) throw err;
     for (var index in result) {
       var data = result[index];
-      console.log("DB LOAD", data['user_id'], data['chat_data'], data['file_link'], data['data_type']);
+      //console.log("DB LOAD", data['user_id'], data['chat_data'], data['file_link'], data['data_type']);
     }
     callback(result);
   });
 }
 
-//룸 채팅을위한 테이블 생성
-function createTable(roomId, callback) {
-  var table = roomId + "DB"
-  var sql = "CREATE TABLE `" + table + "`(`user_id` VARCHAR(30) NOT NULL,"
-  sql += "`chat_data` VARCHAR(1000),"
-  sql += "`chat_time` DATETIME DEFAULT NOW(),"
-  sql += "`file_link` varchar(500) DEFAULT NULL,"
-  sql += "`data_type` varchar(10) NOT NULL);"
+//목적 : 룸 채팅시 저장된 데이터를 불러오는 함수
+function loadToDo(data, callback) {
+  //work 테이블에서 roomId로 todo,num를 들고온다
+  //part 테이블에서 rooId, userId로 num을 들고오고 work에서 num으로 todo를 들고온다
+  var msg = new Object();
+  var allNum = new Array();
+  var allToDo = new Array();
+  var myNum = new Array();
+  var myToDo = new Array();
+  var myUserId = new Array();
+  var roomId = data.roomId;
+  var userId = data.nickname;
 
+  var sql = `SELECT num, todo FROM WORK WHERE roomId = '${roomId}';`;
   conn.query(sql, function(err, result) {
     if (err) {
-      throw err;
+      callback(false);
+    } else {
+      console.log("GET DATA FROM WORK");
+      for (index in result) {
+        allNum[index] = result[index].num;
+        allToDo[index] = result[index].todo;
+        console.log(result[index]);
+      }
+      msg.allNum = allNum;
+      msg.allToDo = allToDo;
+      var sql = `SELECT num, todo, userId FROM PART WHERE roomId='${roomId}' AND userId='${userId}';`;
+      conn.query(sql, function(err, result) {
+        if (err) {
+          callback(false);
+        } else {
+          console.log("GET DATA FROM PART");
+          for (index in result) {
+            myNum[index] = result[index].num;
+            myToDo[index] = result[index].todo;
+            myUserId[index] = result[index].userId;
+            console.log(result[index]);
+          }
+          msg.myNum = myNum;
+          msg.myToDo = myToDo;
+          msg.myUserId = myUserId;
+          callback(msg);
+        }
+      });
     }
-    callback();
   });
 }
 
-//룸 채팅이 끝날경우 데이블 삭제
-function dropTable(roomId) {
-  var table = roomId + "DB";
-  console.log("드랍");
-  console.log(table);
-  console.log("드랍");
-  "CREATE TABLE `" + table + "`(`user_id` VARCHAR(30) NOT NULL,"
-  var sql = "DROP TABLE `" + table + "`;";
-  conn.query(sql, function(err, result) {
-    if (err) {
-      throw err;
-    }
-  });
-}
 
-//목적 : (미완)방장이 떠날시 다른사람을 방장으로 위임하기 위한 함수
-function newMaster() {
-  var temp = roomList.entries();
-  console.log(temp);
-}
+function createRoom(req, callback) {
+  try {
+    // Room 생성을 시도
+    var msg = new Object();
 
-function findClients(roomId) {
-  var keyArr = roomList.keys();
-  var key;
-  var res = new Array();
-  console.log("클라 반복");
-  for (index in keyArr) {
-    key = keyArr[index];
-    console.log(key);
-    console.log(roomList.get(key));
-    if (roomId === roomList.get(key)) {
-      res.push(key);
-    }
+    var roomInfo = req.body;
+    var roomId = roomInfo.roomId;
+    var roomPSW = roomInfo.roomPSW;
+    var roomMaster = roomInfo.nickname;
+    var state = roomInfo.state;
+
+    var sql = `INSERT INTO ROOM VALUES ('${roomId}','${roomPSW}','${roomMaster}');`
+    conn.query(sql, function(err, result) {
+      if (err) { // SQL 문법 에러
+        msg.result = false;
+        msg.data = null;
+        callback(false)
+      } else { // ROOM 생성 성공
+        var data = new Object();
+        data.roomId = roomId;
+        data.userId = roomMaster;
+        msg.result = true;
+        msg.data = data;
+        callback(msg)
+      }
+    });
+  } catch (error) {
+    callback(msg)
   }
-  console.log("클라 반복");
-  return res;
+}
+
+//룸 아이디, 비밀번호와 일치하는 룸이 있는지 확인
+function findRoom(req, callback) {
+  try {
+    // Room 생성을 시도
+    var msg = new Object();
+    var roomInfo = req.body;
+    var roomId = roomInfo.roomId;
+    var roomPSW = roomInfo.roomPSW;
+    var userId = roomInfo.nickname;
+
+    //var sql = `SELECT roomId FROM ROOM WHERE roomId = '${roomId}';`
+    var sql = `SELECT roomId FROM ROOM WHERE roomId = '${roomId}' AND roomPSW = '${roomPSW}';`
+    conn.query(sql, function(err, result) {
+      if (err) { // SQL 문법 에러
+        msg.result = false;
+        callback(msg)
+      } else { // ROOM 생성 성공
+        if (result[0] === undefined) {
+          msg.result = false;
+          callback(msg)
+        } else {
+          var data = new Object();
+          data.roomId = roomId;
+          data.userId = userId;
+          msg.result = true;
+          msg.data = data;
+          callback(msg)
+        }
+      }
+    });
+  } catch (error) {
+    callback(msg)
+  }
+}
+
+function registMember(data, callback) {
+  var roomId = data.roomId;
+  var userId = data.userId;
+
+  var sql = `INSERT INTO ROOM_MEMBER VALUES ('${roomId}','${userId}');`
+  conn.query(sql, function(err, result) {
+    if (err) { // SQL 문법 에러
+      callback(false)
+    } else { // ROOM 생성 성공
+      callback(true)
+    }
+  });
+}
+
+function getCookieMap(cookieString) {
+  var elements = cookieString.split(' ');
+  var cookieMap = new HashMap();
+  for (var index in elements) {
+    var element = elements[index].split("=");
+    var key = element[0];
+    var value = element[1].replace(";", '');
+    cookieMap.set(key, value);
+  }
+  return cookieMap;
+}
+
+//룸에 아무도 없을시 룸 삭제 밑 list 삭제
+function deleteRomm(data, callback) {
+  var roomId = data.roomId;
+  var sql = `DELETE FROM WORK WHERE roomId= '${roomId}';`;
+  var msg = new Object();
+  conn.query(sql, function(err, result) {
+    if (err) {
+      msg.result = false;
+      callback(msg);
+    } else {
+      var sql = `DELETE FROM PART WHERE roomId= '${roomId}';`;
+      var msg = new Object();
+      conn.query(sql, function(err, result) {
+        if (err) {
+          msg.result = false;
+          callback(msg);
+        } else {
+          var sql = `DELETE FROM ROOM WHERE roomId= '${roomId}';`;
+          conn.query(sql, function(err, result) {
+            if (err) {
+              msg.result = false;
+              callback(msg);
+            } else {
+              var sql = `DELETE FROM WORK WHERE roomId= '${roomId}';`;
+              conn.query(sql, function(err, result) {
+                if (err) {
+                  msg.result = false;
+                  callback(msg);
+                } else {
+                  var sql = `DELETE FROM PART WHERE roomId= '${roomId}';`;
+                  conn.query(sql, function(err, result) {
+                    if (err) {
+                      msg.result = false;
+                      callback(msg);
+                    } else {
+                      msg.result = true;
+                      callback(msg);
+                    }
+                  });
+                }
+              });
+            }
+          });
+        }
+      });
+    }
+  });
+}
+
+//멤버가 방에서 나갈시 테이블에서 유저 정보 삭제
+function roomOutMember(data, callback) {
+  var userId = data.userId;
+  var sql = `DELETE FROM ROOM_MEMBER WHERE userId= '${userId}';`;
+  var msg = new Object();
+  conn.query(sql, function(err, result) {
+    if (err) {
+      msg.result = false;
+      callback(msg);
+    } else {
+      msg.result = true;
+      callback(msg);
+    }
+  });
+}
+
+//룸 아이디에 해당하는 멤버정보를 얻기위한 함수
+function roomMember(data, callback) {
+  var roomId = data.roomId;
+  var sql = `SELECT userId FROM ROOM_MEMBER WHERE roomId='${roomId}';`;
+  var msg = new Object();
+  conn.query(sql, function(err, result) {
+    if (err) {
+      msg.result = false;
+      callback(msg);
+    } else {
+      try {
+        msg.result = true;
+        msg.master = result[0].userId;
+        callback(msg);
+      } catch (error) {
+        msg.master = false;
+        callback(msg)
+      }
+
+    }
+  });
+}
+
+//룸 아이디에 해당하는 "모든" 멤버정보를 얻기위한 함수
+function roomMemberALL(data, callback) {
+  var roomId = data.roomId;
+  var sql = `SELECT userId FROM ROOM_MEMBER WHERE roomId='${roomId}';`;
+  var msg = new Object();
+  var allUser = new Array();
+  conn.query(sql, function(err, result) {
+    if (err) {
+      msg.result = false;
+      callback(msg);
+    } else {
+      try {
+        msg.result = true;
+        for (index in result) {
+          allUser[index] = result[index].userId;
+        }
+        msg.allUser = allUser;
+        callback(msg);
+      } catch (error) {
+        msg.result = false;
+        msg.allUser = allUser;
+        callback(msg)
+      }
+    }
+  });
+}
+
+function newMaster(data, callback) {
+  var roomId = data.roomId;
+  var userId = data.userId;
+  var sql = `UPDATE ROOM SET roomMaster = '${userId}' WHERE roomId = '${roomId}';`;
+  var msg = new Object();
+  conn.query(sql, function(err, result) {
+    if (err) {
+      msg.result = false;
+      callback(msg);
+    } else {
+      msg.result = true;
+      callback(msg);
+    }
+  });
+}
+
+//todo list정보를 DB에 저장
+function setToDoList(msg, callback) {
+  console.log("setToDoList");
+  console.log(msg);
+  var work = msg.work;
+  var uerId = msg.userId;
+  var roomId = msg.roomId;
+
+  var sql0 = `SELECT todo FROM WORK WHERE todo='${work}' AND roomId='${msg.roomId}';`;
+  conn.query(sql0, function(err, result) {
+    if (err) { // SQL 문법 에러
+      callback(false);
+    } else {
+      if (result[0]) {
+        callback(false);
+      } else {
+        var sql1 = `INSERT INTO WORK (todo, roomId) VALUES ('${work}','${roomId}');` //todo를 디비에 저장
+        conn.query(sql1, function(err, result) {
+          if (err) { // SQL 문법 에러
+            callback(false);
+          } else {
+            var sql2 = `SELECT num FROM WORK WHERE todo='${work}';`; //todo의 아이디를 get
+            conn.query(sql2, function(err, result2) {
+              if (err) { // SQL 문법 에러
+                callback(false);
+              } else {
+                msg.num = result2[0].num;
+                callback(msg);
+              }
+            });
+          }
+        });
+      }
+    }
+  });
+}
+
+//todo list정보를 DB에서 가져온다
+function getToDoList(msg, callback) {
+  console.log("getToDoList");
+  console.log(msg);
+  var userId = msg.userId;
+  var num = msg.num;
+  var roomId = msg.roomId;
+
+  var sql = `SELECT todo FROM WORK WHERE num='${num}';`; //아이디와 사용자를 등록
+  conn.query(sql, function(err, result) {
+    if (err) { // SQL 문법 에러
+      callback(false);
+    } else {
+      var todo = result[0].todo;
+      var sql = `INSERT INTO PART VALUES ('${num}','${userId}','${roomId}','${todo}');` //아이디와 사용자를 등록
+      conn.query(sql, function(err, result) {
+        if (err) { // SQL 문법 에러
+          callback(false);
+        } else {
+          var sql = `SELECT todo FROM WORK WHERE num='${num}';`; //아이디와 사용자를 등록
+          conn.query(sql, function(err, result) {
+            if (err) { // SQL 문법 에러
+              callback(false);
+            } else {
+              msg.work = result[0].todo;
+              callback(msg)
+            }
+          });
+        }
+      });
+    }
+  });
+
+}
+
+function deleteMyToDoList(msg, callback) {
+  console.log("deleteMyToDoList");
+  console.log(msg);
+  var sql = `DELETE FROM PART WHERE num='${msg.num}' AND userId='${msg.userId}';`;
+  conn.query(sql, function(err, result) {
+    if (err) { // SQL 문법 에러
+      callback(false);
+    } else {
+      callback(msg);
+    }
+  });
 }

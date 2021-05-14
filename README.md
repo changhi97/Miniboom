@@ -18,11 +18,15 @@
 * 소스코드 관리: Git, Github
 
 ## 1.2 개발 언어 및 프레임 워크
+* 프레임 워크
 * [Node.js](https://nodejs.org/)
+* [Bootstrap 5](https://getbootstrap.com/)
+* [summernote](https://summernote.org/)
+* 개발 언어
 * Javascript
 * HTML5
 * CSS3
-* [Bootstrap 5](https://getbootstrap.com/)
+
 
 ## 1.3 테스트 개발 서버
 [네이버 클라우드](https://www.ncloud.com/) 서버를 사용함.

@@ -1,7 +1,7 @@
 async function main() {
-  setUser();
-  startSocket();
-  enterkey();
+  await setUser();
+  await startSocket();
+  await enterkey();
 }
 
 function setUser() {
@@ -40,4 +40,35 @@ function enterkey() {
   window.addEventListener("keyup", (e) => {
     const key = e.key
   })
+}
+
+function roomOut() {
+  var roomId = $('#roomLink').text();
+  var nickname = $('#nickname').val();
+  var msg = {
+    roomId: roomId,
+    nickname: nickname
+  }
+
+  console.log(msg);
+  $.ajax({
+    type: "POST",
+    url: "/groupwork/roomOut",
+    dataType: 'json',
+    contentType: 'application/json',
+    data: JSON.stringify(msg),
+    success: function(result) {
+      if (result) {
+        window.open("https://miniboom.site/", "_self");
+      }
+    }
+  });
+}
+
+//If you want to copyText from Element
+function copyLink() {
+  let element = document.getElementById('roomLink');
+  let elementText = element.textContent;
+  navigator.clipboard.writeText(elementText);
+  alert('링크가 복사되었습니다');
 }

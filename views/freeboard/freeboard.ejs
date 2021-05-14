@@ -6,13 +6,13 @@
     <script src="/jquery/jquery.js"></script>
     <script src="/public/javascripts/jquery-3.5.1.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    </style>
+    <script src="./freeboard_local.js?ver1"></script>
+
     <%- include ('../../public/ejs-module/head.ejs') %>
   </head>
   <body>
     <!--상단 네비게이션 바 -->
     <%- include ('../../public/ejs-module/header.ejs') %>
-
 
 <main class="container">
 
@@ -39,7 +39,7 @@
       </thead>
       <tbody>
         <% for (var i=0; i<result.data.length; i++){ %>
-        <tr id="<%= result.data[i].num %>" onclick="getPoster(id)">
+        <tr id="<%= result.data[i].num %>" onclick="getPost(id)">
           <td> <%= result.data[i].num %> </td>
           <td> <%= result.data[i].title %> </td>
           <td> <%= result.data[i].user_id %> </td>
@@ -56,6 +56,7 @@
 </main> <!-- /.container -->
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
-
+<script type="text/javascript">
+</script>
   </body>
 </html>

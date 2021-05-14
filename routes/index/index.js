@@ -12,26 +12,26 @@ var conn = require('../../public/javascripts/mysql.js');
 
 
 /* 해시맵을 이용하여 사용자들의 socketId를 관리하기 위함이다*/
-HashMap = function(){
+HashMap = function() {
   this.map = new Array();
 };
 
 HashMap.prototype = {
-  put : function(key,value){
+  put: function(key, value) {
     this.map[key] = value;
   },
-  get : function(key){
+  get: function(key) {
     return this.map[key];
   },
-  getAll : function(){
+  getAll: function() {
     return this.map;
   },
-  clear : function(){
+  clear: function() {
     this.map = new Array();
   },
-  getKeys : function(){
+  getKeys: function() {
     var keys = new Array();
-    for(i in this.map){
+    for (i in this.map) {
       keys.push(i);
     }
     return keys;
@@ -40,12 +40,12 @@ HashMap.prototype = {
 
 var index_chat_map = new HashMap();
 
-module.exports = function(io,socketUpload) {
+module.exports = function(io) {
   router.use(bodyParser.json());
   router.get('/', function(req, res, next) {
     info = auth.statusUI(req, res);
     res.render('index/index', {
-      info:info
+      info: info
     });
   });
 
@@ -56,7 +56,7 @@ module.exports = function(io,socketUpload) {
     // console.log("----------index/register----------");
     // console.log(subscription.subscription);
     // console.log("----------index/register----------");
-    set_pushinfo(info.nickname,subscription);
+    set_pushinfo(info.nickname, subscription);
   });
 
   //공개키는 서버가 보내게 하자
@@ -77,10 +77,13 @@ module.exports = function(io,socketUpload) {
     var info = auth.statusUI(req, res);
 
     //DB로 부터 구독정보와 구독 여부를 받아온다
-    get_pushinfo(info.nickname,function(result) {
-      if (result[0]['isSubscribed'] === 'true') {
-        //result가 1이면 푸시알람을 받는다는 뜻이다.
+    get_pushinfo(info.nickname, function(result) {
+      // undefined가 될 때가 있음 if문 하나 더 만들어야할까? 21-05-13-AM 08:07
+      if (result) {
+        //result값이 존재하면 푸시알람을 받는다는 뜻이다.
         key.isSubscribed = true;
+      } else {
+        console.log("ERROR : isSubscribed undefined");
       }
       res.json(key);
     })
@@ -92,23 +95,23 @@ module.exports = function(io,socketUpload) {
 
     /* 새로운 유저 접속시, 소켓 연결 */
     socket.on('newUser', function(data) {
-      console.log("newUser: ",data);
+      console.log("newUser: ", data);
       var info = data;
       socket.name = info.nickname;
 
       var chk = index_chat_map.get(info.nickname)
-      if(!chk){
+      if (!chk) {
         //이미 접속되어있는 아이디이면 알림x
         socket.emit("newUser_response", info);
       }
       //단 소켓 아이디만 갱신
-      index_chat_map.put(info.nickname,socket.id);
-      console.log("ALL INDEX_CHAT USER");
-      console.log(index_chat_map.getAll());
+      index_chat_map.put(info.nickname, socket.id);
+      // console.log("ALL INDEX_CHAT USER");
+      // console.log(index_chat_map.getAll());
     })
 
     /* 새로운 유저 소켓 연결 확인시, 접속 알림 */
-    socket.on("newUser_notice", function(data){
+    socket.on("newUser_notice", function(data) {
       var info = data;
       io.emit("newUser_notice", info);
     })
@@ -128,7 +131,7 @@ module.exports = function(io,socketUpload) {
       //console.log("only server2: ",index_chat_map.get(data.reciver));
       var reciver = index_chat_map.get(data.reciver);
       console.log(reciver);
-      io.to(reciver).emit('only',data);
+      io.to(reciver).emit('only', data);
     })
 
     /* 접속 종료 */
@@ -141,58 +144,43 @@ module.exports = function(io,socketUpload) {
         message: socket.name
       });*/
     })
-
-    /*** file upload 를위함 ***/
-    let uploader = new socketUpload();
-
-    // @breif 업로드 경로를 지정
-    uploader.dir = "file_store";
-
-    uploader.listen(socket);
-
-    // @breif 파일이 저장될 때 수행
-    uploader.on("saved", function(event) {
-      var data={
-        name : socket.name,
-        message:event.file.name,
-        link : '/'+event.file.pathName,
-        type : "file"
-      }
-      saveChat(data);
-      io.emit('update', data);
-    });
-
-    // @breif 오류 처리
-    uploader.on("error", function(event) {
-      console.log("Error from uploader", event);
-    });
-    /*** file upload 를위함 ***/
-
   });
   /* 소켓통신 */
 
   return router;
 }
 
-
-function get_pushinfo(nickname,callback) {
+function get_pushinfo(nickname, callback) {
   var sql = `SELECT isSubscribed,subscription FROM USER_INFO WHERE user_id = '${nickname}';`
   conn.query(sql, function(err, result) {
-    if (err) throw err;
-    var isSubscribed = result[0]['isSubscribed'];
-    var subscription = result[0]['subscription'];
-    if(subscription !== null){
-      subscription = JSON.parse(result[0]['subscription']);
+    if (err) {
+      console.log("get_pushinfo ERR(INDEX)");
+    };
+    try {
+      var msg = new Object();
+      var isSubscribed = result[0];
+      var subscription = result[0];
+
+      if (isSubscribed !== undefined) {
+        isSubscribed = isSubscribed['isSubscribed'];
+        msg.isSubscribed = subscription;
+        if (subscription !== undefined) {
+          subscription = JSON.parse(subscription['subscription']);
+          msg.subscription = subscription;
+          callback(msg);
+        } else {
+          callback(false);
+        }
+      } else {
+        callback(false)
+      }
+    } catch {
+      callback(false);
     }
-    // console.log("----------GET subscription----------");
-    // console.log(isSubscribed);
-    // console.log(subscription);
-    // console.log("----------GET subscription----------");
-    callback(result);
   });
 }
 
-function set_pushinfo(nickname,info) {
+function set_pushinfo(nickname, info) {
   var isSubscribed = info.isSubscribed;
   var subscription = JSON.stringify(info.subscription);
   // console.log("----------PUSH subscription----------");

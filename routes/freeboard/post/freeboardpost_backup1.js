@@ -16,7 +16,7 @@ router.get('/:pageId',async function(req, res){
 
   getPost(pageId, function(msg){
     var result = msg.data[0];
-    var result3 = msg.comment[0];
+    var result3 = msg.comment;
 
 
 
@@ -62,7 +62,7 @@ router.post('/:pageId' , function(req, res, next){
 
 
 // 미완성
-// 함수 이름: getPost
+// 함수 이름: getPoster
 // 함수 목적: 글의 정보(글 번호, 제목, 작성자, 내용, 작성날짜, 조회수, 추천수  )
 function getPost(pageId, callback) {
 
@@ -79,6 +79,10 @@ function getPost(pageId, callback) {
   var sql3 =  "SELECT post_id, state, user_id, comment_pw ,created, comment_content FROM COMMENT ";
       sql3 += "WHERE post_id = " + pageId + " ";
 
+  var sql4 = "SELECT COUNT(*) FROM COMMENT WHERE post_id = " + pageId + " ";
+
+    conn.query(sql4, function(err, result4){
+      if (err) throw err;
 
       conn.query(sql3, function(err, result3){
           if(err) throw err;
@@ -88,8 +92,14 @@ function getPost(pageId, callback) {
         conn.query(sql, function (err, result) {
           if (err) throw err;
           var msg = new Object();
+
+          for(var i=0; i<result3.length; i++){
+            result3[i].created = getFormDate(result3[i].created);
+          }
+
           msg.comment = result3;
           msg.data = result;
+
           console.log("msg.comment 확인: ", msg.comment);
           console.log("msg.data 확인: ", msg.data);
           callback(msg);
@@ -97,6 +107,7 @@ function getPost(pageId, callback) {
         });
       });
     });
+  });
 }
 
 // 함수 목적: 날짜 포맷 맞추기

@@ -7,7 +7,7 @@ function addPoster(){
   msg.flag = "addPoster";
   msg.title = $("#title").val();
   msg.summernote = $('#summernote').summernote('code'); // html 코드로 내용 읽기
-  
+
 
   console.log("summernoteContent : " + msg.summernote);
 
@@ -27,7 +27,7 @@ function addPoster(){
     data: JSON.stringify(msg),
     success: function(result) {
       console.log(result)
-      window.open("https://miniboom.site/", "_self");
+      window.open("https://miniboom.site/freeboard/", "_self");
     }
   });
 

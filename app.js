@@ -76,7 +76,7 @@ app.all('*', (req, res, next) => //
 });
 
 
-var indexRouter = require('./routes/index/index')(indexSocket,socketUpload); //메인페이지 라우터
+var indexRouter = require('./routes/index/index')(indexSocket); //메인페이지 라우터
 app_s.use('/', indexRouter);
 
 var freeboardRouter = require('./routes/freeboard/freeboard'); // 자유게시판 라우터

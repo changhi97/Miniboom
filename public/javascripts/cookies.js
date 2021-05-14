@@ -1,6 +1,6 @@
 function setCookie(name, value, exp) {
   var date = new Date();
-  date.setTime(date.getTime() + exp*1000);
+  date.setTime(date.getTime() + exp*1000); // 1000ms = 1sec
   document.cookie = name + '=' + value + ';expires=' + date.toUTCString() + ';path=/';
 }
 

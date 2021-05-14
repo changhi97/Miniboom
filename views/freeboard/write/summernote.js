@@ -18,7 +18,8 @@ $(document).ready(function(){
         maxHeight: null,
         focus : true,
         lang : 'ko-KR',
-        toolbar : toolbar
+        toolbar : toolbar,
+        
     };
 
     $('#summernote').summernote(setting);

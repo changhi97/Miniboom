@@ -14,7 +14,7 @@
         <!-- 왼족 네이게이션 바 -->
         <ul class="navbar-nav me-auto mb-2 mb-md-0">
           <li class="nav-item">
-            <a class="nav-link" href="#">사이트 안내</a>
+            <a class="nav-link" href="#">사이트 소개</a>
           </li>
           <% if(info.state == "Member") {%> // 로그인 시 푸시알림출력
           <script src="/index/index_push_local.js"></script> <!-전역 자바스크립트 라이브러리로 변경할것! 04-08 ->
@@ -31,7 +31,7 @@
               <a class="btn btn-primary btn-l" href="/login">로그인</a>
               <% } %>
               <!-- user dropdown-->
-              
+
               <% if(info.state =="Member") { %>
             <li class="nav-item dropdown">
               <a class="btn btn-primary btn-l" href="#" id="dropdown01" data-bs-toggle="dropdown" aria-expanded="false"><%=info.nickname%></a>

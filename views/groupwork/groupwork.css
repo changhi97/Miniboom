@@ -14,16 +14,43 @@ body {
   padding: 0;
 }
 
-#roomInfo{
-  margin: 1% 0% 0% 1%;
-  width: 2%;
+#iconField{
+  width: 50%;
+  height: 50px;
 }
 
-.info{
-  width:100%;
-  height : 100%;
+#roomIcon{
+  float: left;
+  width: 100%;
+  margin: 1% 10% 0% 1%;
+}
+
+#roomIcon ul li{
+  font-size: 13px;
+}
+
+#iconField #roomIcon .info{
+  width:40px;
+  margin: 10px;
   cursor: pointer;
 }
+#iconField #roomIcon .roomOut{
+  width:40px;
+  margin: 10px;
+  cursor: pointer;
+}
+#iconField #roomIcon .myList{
+  width:40px;
+  margin: 10px;
+  cursor: pointer;
+}
+
+#roomActive{
+  float: left;
+  margin: 1% 0% 0% 1%;
+  width: 20%;
+}
+
 
 li{
   list-style:none;
@@ -37,9 +64,6 @@ li{
   font-weight: bold;
 }
 
-#roomInfo ul li{
-  font-size: 13px;
-}
 /* progress */
 @-webkit-keyframes progress-bar-stripes {
   from {
@@ -121,7 +145,6 @@ li{
   width: 48%;
   height: 780px;
   margin: 1% 1% 1% 1%;
-  background-color: var(--dark);
 }
 
 .container-box {
@@ -350,17 +373,45 @@ li{
   padding: 5px;
 }
 
-.memo_content {
+.memo_content{
   overflow: hidden;
   width: 90%;
   height: 15%;
   font-size: 10px;
+  margin: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  color: var(--dark);
+  background-color: #eceff1;
+}
+
+.member{
+  overflow: hidden;
+  width: 90%;
+  height: 7%;
+  font-size: 20px;
   margin: 5px;
   padding: 10px;
   border-radius: 5px;
   color: var(--dark);
   background-color: #eceff1;
 }
+
+.MYlist{
+  overflow: hidden;
+  width: 95%;
+  height: 20%;
+  font-size: 20px;
+  margin: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  color: var(--dark);
+  background-color: #eceff1;
+}
+.MYlist p{
+  overflow: hidden;
+}
+
 
 .memo_content:hover {
   background-color: LightGrey;
@@ -384,31 +435,63 @@ li{
   width: 48%;
   height: 780px;
   margin: 1% 1% 1% 1%;
-  background-color: var(--dark);
 }
 
 /* 채팅 Layout */
 /* LAYOUY */
-#todoList {
+#MYtodoList {
   clear: both;
+  overflow-y: scroll;
   margin: 1%;
   width: 98%;
   height: 37%;
-  background-color: var(--light);
+  background-color: var(--grey);
 }
 
-#blankLayout {
+#MYtodoList ul li{
+  margin: 2%;
+}
+
+#ALLtodoList {
+  overflow-y: scroll;
   float: left;
   margin: 1% 1% 1% 1%;
-  width: 50%;
+  width: 65%;
   height: 98%;
   background-color: var(--grey);
+}
+
+.ALLlist{
+  overflow: hidden;
+  width: 95%;
+  height: 13%;
+  font-size: 15px;
+  margin: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  color: var(--dark);
+  background-color: #eceff1;
+}
+
+.ALLlist p{
+  overflow: hidden;
 }
 
 #memberIndex {
   float: left;
   margin: 1% 1% 1% 0%;
-  width: 47%;
+  width: 32%;
   height: 98%;
   background-color: var(--bg);
+}
+
+input[type="checkbox"]{
+  float: right;
+  width: 25px;
+  height: 25px;
+}
+
+.with{
+  font-size: 12px;
+  font-weight: bold;
 }

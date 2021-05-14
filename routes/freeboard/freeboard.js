@@ -26,7 +26,6 @@ var parm = querystring.parse(curURL.query);
 
 console.log('query의 값: %s', param.query);
 */
-
 module.exports = router;
 
 // parse : bodyParser
@@ -35,34 +34,13 @@ router.use(bodyParser.json());
 router.get('/', async function (req, res) { // await 키워드를 사용하기 위해서는 async function을 사용해야함
   var info = auth.statusUI(req, res); // 쿠키 정보
 
+  //req._parsedOriginalUrl.query 쿼리 스트링 가져옴
   getFreeboard(req._parsedOriginalUrl.query, function(result){
     res.render('freeboard/freeboard', {
       result: result, info, // result에 result와 info를 넣어 리턴
     });
   });
 });
-
-
-//id = post id
-/*
-router.get(':id', function (req, res, next) {
-  console.log("welcome to /:id");
-});
-*/
-
-
-
-//원본 라우터 렌더링 코드
-/*
-router.get('/', function (req, res, next) {
-  var info = auth.statusUI(req, res);
-  getFreeboard(req._parsedOriginalUrl.query, function(result){
-    res.render('freeboard/freeboard', {
-      result: result, info, // result와 info 값을 리턴(?)
-    });
-  });
-});
-*/
 
 /* 백업
 router.get('/', function (req, res, next) {
@@ -75,13 +53,8 @@ router.get('/', function (req, res, next) {
 });
 */
 
-
-
-
-
 function getFreeboard(msg, callback){
   try{
-
     var boardnum = msg.split("=")[1]; //split()메소드는 String 객체를 지정한 구분자로 여러개로 나눈다.
 
     boardnum = ((boardnum-1)*10); // db는 0번부터 시작한다. 0-9는 총 10개
@@ -89,7 +62,7 @@ function getFreeboard(msg, callback){
     boardnum = 0;
   }
 
-  var sql = "SELECT num, title, user_id, created, views from FREEBOARD FB "; //FREEBOARD FB는 FREEBOARD를 FB로 사용한다고 정의함
+  var sql = "SELECT num, title, user_id, content, created, views from FREEBOARD FB "; //FREEBOARD FB는 FREEBOARD를 FB로 사용한다고 정의함
       sql += "WHERE (@rownum:=0)=0 "
       sql += "ORDER by FB.created DESC "
       sql += "limit "+boardnum+", 10;";
