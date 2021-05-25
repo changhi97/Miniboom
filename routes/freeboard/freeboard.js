@@ -16,16 +16,7 @@ var mysql = require('mysql');
 var auth = require('../../public/javascripts/auth');
 var conn = require('../../public/javascripts/mysql.js'); // mysql connection
 var cookieParser = require('cookie-parser');
-/*
-var url = require('url');
-var curURL = url.parse('https://miniboom.site/freeboard');
-var curStr = url.format(curURL);
 
-var querystring = require('querystring'); // 쿼리시트링: 요청 파라미터 구분하기
-var parm = querystring.parse(curURL.query);
-
-console.log('query의 값: %s', param.query);
-*/
 module.exports = router;
 
 // parse : bodyParser

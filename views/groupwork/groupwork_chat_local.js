@@ -6,6 +6,7 @@ let siofu = new SocketIOFileUpload(socket);
  */
 function startSocket() {
   connect();
+  update_list();
   newUser_response();
   newUser_notice();
   update();
@@ -34,7 +35,6 @@ function connect() {
 function newUser_response() {
   socket.on('newUser_response', function(data) {
     var info = data.info
-    var work= data.work;
     console.log('newUser_response: ', info);
 
     var nickname = getCookie("nickname"); //현재 접속한 유저의 아이디 data의 nickname과 비교하기위함
@@ -123,25 +123,36 @@ function newUser_response() {
       }
     }
 
+    var work = data.work;
     console.log('newUser_response: ', work.allNum);
     console.log('newUser_response: ', work.myNum);
-    for(index in work.allNum){
+    for (index in work.allNum) {
       var msg = {
-        num : work.allNum[index],
-        work : work.allToDo[index]
+        num: work.allNum[index],
+        work: work.allToDo[index]
       }
       createALLtodoList(msg);
     }
 
-    for(index in work.myNum){
-      var msg={
-        userId :work.myUserId[index],
-        num :work.myNum[index],
-        work : work.myToDo[index]
+    for (index in work.myNum) {
+      var msg = {
+        userId: work.myUserId[index],
+        num: work.myNum[index],
+        work: work.myToDo[index]
       }
       createMYtodoList(msg);
     }
-    socket.emit('newUser_notice', info);
+
+    for (var i = 0; i < work.allNum.length; i++) {
+      for (var j = 0; j < work.myNum.length; j++) {
+        if (work.allNum[i] === work.myNum[j]) {
+          $("#" + work.allNum[i]).prop("disabled", true);
+          $("#" + work.allNum[i]).prop('checked', true);
+        }
+      }
+    }
+
+    socket.emit('newUser_notice', data);
   })
 }
 
@@ -151,18 +162,45 @@ function newUser_response() {
 function newUser_notice() {
   socket.on('newUser_notice', function(data) {
     console.log("newUser_notice client");
-    console.log(data);
     var info = data;
 
     /*MEMBER INDEX 추가*/
     var memberIndex = document.getElementById('memberIndex');
     var member = document.createElement('div');
-    member.setAttribute("class", `member ${info.nickname}`);
-    member.innerHTML = info.nickname;
+    member.setAttribute("class", `member ${info.info.nickname}`);
+    member.innerHTML = info.info.nickname;
     memberIndex.appendChild(member);
     /*MEMBER INDEX 추가*/
 
     $("#chat").scrollTop($("#chat")[0].scrollHeight);
+    socket.emit('update_list', data);
+
+  })
+}
+
+/* 접속 되었을 때 실행 */
+function update_list() {
+  socket.on('update_list', function(data) {
+    console.log("update_list성공");
+    console.log(data);
+
+    /*var deleteList = document.getElementsByClassName(`with`);
+    for (var i = 0; i < deleteList.length; i++) {
+      deleteList[i].remove();
+    }*/
+
+    //addWith으로 msg(num, userID) 참여자 추가
+    //체크박스 체크유무 확인  / 체크유문는 들고온 all 과 my중에서 값이 같으면 해주면 될듯
+    var work = data;
+    for (var i = 0; i < work.withNum.length; i++) {
+      var msg = {
+        num: work.withNum[i],
+        userId: work.withUserId[i]
+      }
+      console.log("MSG");
+      console.log(msg);
+      addWith(msg);
+    }
   })
 }
 

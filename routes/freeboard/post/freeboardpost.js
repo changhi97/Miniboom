@@ -15,29 +15,22 @@ router.get('/:pageId',async function(req, res){
   var pageId = req.cookies['pageId'];
 
   getPost(pageId, function(msg){
-    var result = msg.data[0];
-    var result3 = msg.comment[0];
-
-
-
-    // 예외 처리로써 댓글이 0 일때 글을 못불러오는것을 방지하기 위함
-    if(result3 == undefined){
-      result3 = 0;
-    }
-    // 일단 0으로 초기화 시켜놓음
-    //var comment = msg.data[0]; // comment.data[0];
-    //console.log("comment: ", comment);
-
+    var result = msg.data;
+    var comment = msg.comment;
 
     result.created = getDataForm(result.created);
-    result3.created = getDataForm(result3.created);
+
+    for(var i=0; i<comment.length; i++){
+      comment[i].created = getDataForm(comment[i].created);
+    }
+
+    console.log(comment);
 
     res.render('freeboard/post/freeboardPost', {
-      result: result,
-      result3: result3, // DB로 부터 받은 댓글 정보
+      result: result, // 글 내용
+      comment: comment, // 댓글 내용
       info: info,
       pageId: pageId
-      //comment: comment
       });
   });
 });
@@ -56,12 +49,16 @@ router.post('/:pageId' , function(req, res, next){
     writeComment(req.body, function(result){
       res.json(result);
     })
+  } else if(flag == "deleteComment") {
+    deleteComment(req.body, function(result){
+      res.json(result);
+    })
   }
 });
 
 
 
-// 미완성
+// 완성
 // 함수 이름: getPost
 // 함수 목적: 글의 정보(글 번호, 제목, 작성자, 내용, 작성날짜, 조회수, 추천수  )
 function getPost(pageId, callback) {
@@ -76,27 +73,24 @@ function getPost(pageId, callback) {
       sql2 += "WHERE num = "+pageId;
 
   // 댓글 정보
-  var sql3 =  "SELECT post_id, state, user_id, comment_pw ,created, comment_content FROM COMMENT ";
+  var sql3 =  "SELECT post_id, state, user_id, comment_pw ,created, comment_content, comment_id FROM COMMENT ";
       sql3 += "WHERE post_id = " + pageId + " ";
 
 
-      conn.query(sql3, function(err, result3){
-          if(err) throw err;
-
-        conn.query(sql2, function(err, result){
-          if (err) throw err;
-        conn.query(sql, function (err, result) {
-          if (err) throw err;
-          var msg = new Object();
-          msg.comment = result3;
-          msg.data = result;
-          console.log("msg.comment 확인: ", msg.comment);
-          console.log("msg.data 확인: ", msg.data);
-          callback(msg);
-          return
-        });
+  conn.query(sql3, function(err, comment_list){
+    if(err) throw err;
+    conn.query(sql2, function(err, view_update){
+      if (err) throw err;
+      conn.query(sql, function (err, post_info) {
+        if (err) throw err;
+        var msg = new Object();
+        msg.comment = comment_list;
+        msg.data = post_info[0];
+        callback(msg);
+        return
       });
     });
+  });
 }
 
 // 함수 목적: 날짜 포맷 맞추기
@@ -126,14 +120,14 @@ function deletePost(msg, callback){
   });
 }
 
-// 미완성
+// 완성
 // 댓글을 불러오기 위한 함수
 // 리턴값 미정
 function getComment(pageId, callback){
   var pageId = msg.pageId;
 
   // 댓글의 정보를 객체속 배열로 불러옴
-  var sql = "SELECT state, user_id, comment_pw ,created, comment_content FROM COMMENT ";
+  var sql = "SELECT state, user_id, comment_pw ,created, comment_content, comment_id FROM COMMENT ";
       sql += "ORDER BY COMMENT.created ASC" //최신 댓글부터 불러옴
 
       conn.query(sql, function (err, result) {
@@ -147,12 +141,76 @@ function getComment(pageId, callback){
       });
 }
 
-// 미완성
+// 완성
 // 댓글 작성을 위한 함수
 // 리턴 값: 미정
 function writeComment(msg, callback) {
-  var pageId = msg.pageId;
+  var state = msg.state;
+  var post_id = msg.post_id;
+  var user_id = msg.user_id;
+  var comment_pw = msg.comment_pw;
+  var comment_content = msg.comment_content;
+  /*
+  var sql = `INSERT INTO COMMENT
+             VALUES('${post_id}', '${state}',
+                    '${user_id}', '${comment_pw}', NOW(),
+                    '${comment_content}')`;
+  */
+  var sql = `INSERT INTO COMMENT(post_id, state, user_id, comment_pw, created, comment_content)
+             VALUES('${post_id}', '${state}',
+                    '${user_id}', '${comment_pw}', NOW(),
+                    '${comment_content}')`;
+      conn.query(sql, function (err, result) {
+        if (err) throw err;
+        callback(true);
+        return
+      });
+}
 
-  var sql = " ";
-      sql += " ";
+function deleteComment(msg, callback) {
+  var state = msg.state;
+  var post_id = msg.post_id;
+
+  var comment_id = msg.comment_id;
+
+  var user_id = msg.user_id;
+
+  var comment_pw = msg.comment_pw;
+
+  var sql_pw = 'SELECT comment_pw from COMMENT WHERE comment_id = ' + comment_id + ' ';
+  var sql_user = 'SELECT user_id from COMMENT WHERE comment_id = ' + comment_id + ' ';
+  var sql_delete = 'DELETE FROM COMMENT WHERE comment_id = ' + comment_id + ' ';
+
+  /*
+  conn.query(sql_pw, function (err, result){
+    if(err) throw err;
+
+  });
+  */
+  console.log("sql쿼리문 실행전");
+      conn.query(sql_pw, function(err, sql_pw_result){
+
+          conn.query(sql_user, function (err, sql_user_result) {
+            console.log("sql_user 실행 결과: ", sql_user_result[0].user_id);
+            console.log("user_id: ", user_id);
+            if(sql_user_result[0].user_id == user_id || sql_pw_result[0].comment_pw == comment_pw ){
+            conn.query(sql_delete, function (err, result){
+            callback(msg);
+            return
+            });
+          }
+        });
+    });
+
+    /* 원본 백업
+    conn.query(sql_pw, function(err, result){
+      if (err) throw err;
+        conn.query(sql_user, function (err, result) {
+          conn.query(sql_delete, function (err, result){
+          callback(msg);
+          return
+          });
+      });
+  });
+  */
 }

@@ -24,7 +24,9 @@
           <th scope="col" class="user_id">작성자: <%= result.user_id %></th>
           <th scope="col">조회수: <%= result.views %></th>
           <th scope="col">작성날짜: <%= result.created %></th>
+          <% if(result.user_id == info.nickname) {%>
           <th scope="col"><button type="button" class="btn btn-primary del_btn" onclick="deletePost()">삭제</button></th>
+          <% } %>
         </tr>
     </thead>
   </table>
@@ -39,7 +41,7 @@
         <% if(info.state == "nonMember") {%>
         <% var nickname = info.nickname %>
         <th scope="col" style="align:left">비밀번호를 모르면 댓글을 삭제할 수 없습니다. 주의하세요.</th>
-        <th scope="col">비밀번호<input type="password" class="form-control" id="inputPassword2" placeholder="Password"> </th>
+        <th scope="col">비밀번호<input type="password" class="form-control" id="comment_pw" placeholder="Password"> </th>
         <th scope="col"><button type="button" class="btn btn-primary write_comment_btn" onclick="writeComment()">댓글 작성</button></th>
         <% } if(info.state == "Member") { %>
         <th scope="col" style="align:left"><button type="button" class="btn btn-primary write_comment_btn" onclick="writeComment()">댓글 작성</button></th>
@@ -49,7 +51,7 @@
     </thead>
   </table>
     <div class="form-floating">
-      <textarea class="form-control" onkeydown="resize(this)" onkeyup="resize(this)" placeholder="댓글 작성하기" id="floatingTextarea"></textarea>
+      <textarea id="comment_content" class="form-control" onkeydown="resize(this)" onkeyup="resize(this)" placeholder="댓글 작성하기" id="floatingTextarea"></textarea>
       <label for="floatingTextarea">댓글 작성하기</label>
       <br>
       <table table class="table table-bordered">
@@ -58,16 +60,23 @@
             <th scope="col-4">댓글 작성자</th>
             <th scope="col-md-10">내용</th>
             <th scope="col-md-2">작성 날짜</th>
+            <th scope="col-sm-2">댓글 삭제</th>
           </tr>
         </thead>
         <tbody>
-          <%# for (var i=0; i<result3.lenght; i++) { %>
-            <% if (result3.user_id) { %>
-          <tr>
-            <td> <%= result3.user_id %> </td>
-            <td> <%- result3.comment_content %> </td>
-            <td> <%= result3.created %> </td>
-            </tr>
+          <% for (var i=0; i<comment.length; i++) { %>
+          <tr id="coment-<%= i %>">
+
+            <td class="user_id" user_id="<%= comment[i].user_id %>"> <%= comment[i].user_id %> </td>
+            <td class=content content="<%= comment[i].comment_content %>"> <%= comment[i].comment_content %> </td>
+            <td class="created" created="<%= comment[i].created %>"> <%= comment[i].created %> </td>
+            <input class="comment_id" type="hidden" comment_id="<%= comment[i].comment_id %>"> </input>
+            <% if(comment[i].state == "nonMember") { %>
+            <td> <button type="button" class="btn btn-primary" value="<%= comment[i].comment_id %>" onclick="deleteComment(value)">댓글 삭제 </button></td>
+            <% } else if(comment[i].user_id == info.nickname) {%>
+            <td> <button type="button" class="btn btn-primary" value="<%= comment[i].comment_id %>" onclick="deleteComment(value)">댓글 삭제</button></td>
+            <% } %>
+          </tr>
           <% } %>
         </tbody>
       </table>
